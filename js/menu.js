@@ -236,6 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Set modal content
         modalTitle.textContent = getProductTranslation(product.name);
+        modalTitle.dataset.productId = product.id; // Store product ID for add to order
         modalImage.innerHTML = '<i class="fas fa-utensils"></i>'; // Default icon
         modalName.textContent = getProductTranslation(product.name);
         modalCategory.textContent = getCategoryTranslation({ name: { fr: product.category } });
@@ -269,4 +270,79 @@ document.addEventListener('DOMContentLoaded', function() {
             ? menuData.translations[currentLanguage][key]
             : key;
     }
+
+    // Order management functions
+    function getOrders() {
+        const orders = localStorage.getItem('menuOrders');
+        return orders ? JSON.parse(orders) : [];
+    }
+
+    function saveOrder(product) {
+        const orders = getOrders();
+        const existingOrderIndex = orders.findIndex(order => order.productId === product.id);
+
+        if (existingOrderIndex >= 0) {
+            // If product already in order, increment quantity
+            orders[existingOrderIndex].quantity += 1;
+        } else {
+            // Add new product to order
+            orders.push({
+                productId: product.id,
+                name: getProductTranslation(product.name),
+                price: product.price,
+                quantity: 1,
+                category: product.category,
+                image: product.image,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        localStorage.setItem('menuOrders', JSON.stringify(orders));
+        showOrderConfirmation();
+    }
+
+    function showOrderConfirmation() {
+        // Create or update order confirmation toast
+        let toast = document.getElementById('orderToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'orderToast';
+            toast.className = 'position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '1050';
+            document.body.appendChild(toast);
+        }
+
+        toast.innerHTML = `
+            <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        Produit ajouté à la commande!
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+
+        const bootstrapToast = new bootstrap.Toast(toast);
+        bootstrapToast.show();
+    }
+
+    // Initialize add to order button functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // This will run after the DOM is loaded, but we need to ensure the modal exists
+        const addToOrderBtn = document.getElementById('addToOrderBtn');
+        if (addToOrderBtn) {
+            addToOrderBtn.addEventListener('click', function() {
+                // Get the currently displayed product from the modal
+                const modalProductId = document.getElementById('productModalLabel').dataset.productId;
+                if (modalProductId && menuData) {
+                    const product = menuData.products.find(p => p.id == modalProductId);
+                    if (product) {
+                        saveOrder(product);
+                    }
+                }
+            });
+        }
+    });
+
 });

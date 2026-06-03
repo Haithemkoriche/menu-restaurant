@@ -30,13 +30,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // QR Code Generator
-    const qrBtn = document.getElementById('qrBtn');
-    if (qrBtn) {
+    // Show QR button in header only if ?showqr=1 is present
+    const urlParamsHeader = new URLSearchParams(window.location.search);
+    if (urlParamsHeader.get('showqr') === '1') {
+        showQRButtonInHeader();
+    }
+
+    // QR Code Generator (always available via modal, but button only shows with ?showqr=1)
+
+    function showQRButtonInHeader() {
+        const container = document.getElementById('qRButtonContainer');
+        if (!container) return;
+
+        const qrBtn = document.createElement('button');
+        qrBtn.className = 'qr-btn';
+        qrBtn.id = 'qrBtn';
+        qrBtn.innerHTML = '<i class="fas fa-qrcode"></i> Generate QR Code';
+        qrBtn.title = 'Generate QR Code';
         qrBtn.addEventListener('click', function(e) {
             e.preventDefault();
             showQRCodeModal();
         });
+
+        container.appendChild(qrBtn);
     }
 
     function setLanguage(lang) {
@@ -110,47 +126,124 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
+                            <h5 class="modal-title" id="qrModalLabel">QR Code Generator</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <div class="modal-body text-center">
-                            <div id="qrCodeContainer">
-                                <!-- QR code image will be inserted here -->
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <button class="btn btn-outline-primary me-2" id="singleQrBtn">Single Table QR Code</button>
+                                <button class="btn btn-outline-primary" id="multipleQrBtn">All Tables QR Codes</button>
                             </div>
-                            <p class="mt-3" id="qrUrl"></p>
+                            <div id="qrContent">
+                                <!-- QR code content will be inserted here -->
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="printQrBtn">Print QR Codes</button>
                         </div>
-                    </div>
+                    </>
                 </div>
             `;
             document.body.appendChild(modal);
+
+            // Add event listeners for the buttons
+            modal.querySelector('#singleQrBtn').addEventListener('click', function() {
+                showSingleQrCode();
+            });
+
+            modal.querySelector('#multipleQrBtn').addEventListener('click', function() {
+                showMultipleQrCodes();
+            });
+
+            modal.querySelector('#printQrBtn').addEventListener('click', function() {
+                window.print();
+            });
         }
 
-        // Set the URL to encode (current page URL)
-        const currentUrl = window.location.href;
-        const qrUrlElement = document.getElementById('qrUrl');
-        if (qrUrlElement) {
-            qrUrlElement.textContent = currentUrl;
-        }
-
-        // Set the QR code image
-        const qrCodeContainer = document.getElementById('qrCodeContainer');
-        if (qrCodeContainer) {
-            // Clear previous content
-            qrCodeContainer.innerHTML = '';
-
-            // Create QR code image using QR Server API
-            const qrImg = document.createElement('img');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUrl)}`;
-            qrImg.alt = 'QR Code';
-            qrImg.style.maxWidth = '100%';
-            qrCodeContainer.appendChild(qrImg);
-        }
+        // Default to single QR code view
+        showSingleQrCode();
 
         // Show modal
         const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
         qrModal.show();
+    }
+
+    function showSingleQrCode() {
+        const qrContent = document.getElementById('qrContent');
+        if (!qrContent) return;
+
+        // Clear previous content
+        qrContent.innerHTML = '';
+
+        // Set the URL to encode (current page URL)
+        const currentUrl = window.location.href;
+
+        // Create QR code image using QR Server API
+        const qrImg = document.createElement('img');
+        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+        qrImg.alt = 'QR Code for current page';
+        qrImg.style.display = 'block';
+        qrImg.style.margin = '0 auto';
+
+        const qrInfo = document.createElement('p');
+        qrInfo.className = 'text-center mt-3';
+        qrInfo.textContent = currentUrl;
+
+        qrContent.appendChild(qrImg);
+        qrContent.appendChild(qrInfo);
+    }
+
+    function showMultipleQrCodes() {
+        const qrContent = document.getElementById('qrContent');
+        if (!qrContent) return;
+
+        // Clear previous content
+        qrContent.innerHTML = '';
+
+        // Base URL (without table parameter)
+        const baseUrl = window.location.href.split('?')[0];
+        const currentTable = new URLSearchParams(window.location.search).get('table') || '1';
+
+        // Generate QR codes for tables 1-20
+        const tableCount = 20;
+        const qrGrid = document.createElement('div');
+        qrGrid.className = 'qr-grid';
+        qrGrid.style.display = 'grid';
+        qrGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
+        qrGrid.style.gap = '15px';
+        qrGrid.style.marginBottom = '20px';
+
+        for (let i = 1; i <= tableCount; i++) {
+            const tableUrl = `${baseUrl}?table=${i}`;
+
+            const qrItem = document.createElement('div');
+            qrItem.style.textAlign = 'center';
+
+            const qrImg = document.createElement('img');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(tableUrl)}`;
+            qrImg.alt = `QR Code for table ${i}`;
+            qrImg.style.width = '100px';
+            qrImg.style.height = '100px';
+            qrImg.style.border = '1px solid #ddd';
+            qrImg.style.borderRadius = '4px';
+
+            const tableLabel = document.createElement('div');
+            tableLabel.className = 'mt-2';
+            tableLabel.style.fontSize = '14px';
+            tableLabel.style.fontWeight = 'bold';
+            tableLabel.textContent = `Table ${i}`;
+
+            qrItem.appendChild(qrImg);
+            qrItem.appendChild(tableLabel);
+            qrGrid.appendChild(qrItem);
+        }
+
+        const instructions = document.createElement('p');
+        instructions.className = 'text-center mb-3';
+        instructions.innerHTML = `<strong>Tip:</strong> Select landscape orientation for better fit when printing.`;
+
+        qrContent.appendChild(instructions);
+        qrContent.appendChild(qrGrid);
     }
 });

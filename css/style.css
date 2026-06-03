@@ -203,6 +203,75 @@ a:hover {
   transform: translateY(0);
 }
 
+/* QR Code Modal Styles */
+.qr-grid {
+  gap: 15px;
+}
+
+.qr-grid img {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  transition: transform 0.2s;
+}
+
+.qr-grid img:hover {
+  transform: scale(1.05);
+}
+
+/* Print Button */
+#printQrBtn {
+  background: var(--primary-color);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#printQrBtn:hover {
+  background: var(--primary-dark);
+  color: white;
+  transform: translateY(-2px);
+}
+
+#printQrBtn:active {
+  transform: translateY(0);
+}
+
+/* Print Styles */
+@media print {
+  /* Hide modal header and footer when printing */
+  #qrModal .modal-header,
+  #qrModal .modal-footer {
+    display: none !important;
+  }
+
+  /* Make QR codes larger when printing */
+  .qr-grid img {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  /* Adjust grid layout for printing */
+  .qr-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    gap: 20px !important;
+  }
+
+  /* Hide print button when printing */
+  #printQrBtn {
+    display: none !important;
+  }
+
+  /* Hide single QR mode buttons when printing */
+  #singleQrBtn,
+  #multipleQrBtn {
+    display: none !important;
+  }
+}
+
 /* ================================
    HERO SECTION
    ================================ */
@@ -720,6 +789,16 @@ a:hover {
   padding: 30px 0;
   text-align: center;
   margin-top: 40px;
+}
+
+/* Order Toast Styles */
+#orderToast {
+  z-index: 1060 !important;
+}
+
+/* Ensure toast appears above modals */
+.toast {
+  min-width: 250px;
 }
 
 .footer-content p {

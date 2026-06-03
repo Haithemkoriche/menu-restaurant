@@ -78,7 +78,7 @@
       },
       "price": 900,
       "category": "Tacos",
-      "image": "assets/products/tacos-chicken.jpg",
+      "image": "assets/products/tacos-chicken.svg",
       "available": true,
       "ingredients": {
         "fr": "Poulet grillé, fromage cheddar, laitue, tomate, oignon, frites",
@@ -100,7 +100,7 @@
       },
       "price": 750,
       "category": "Sandwiches",
-      "image": "assets/products/sandwich-club.jpg",
+      "image": "assets/products/sandwich-club.svg",
       "available": true,
       "ingredients": {
         "fr": "Poulet, bacon, œuf, laitue, tomate, mayonnaise",
@@ -122,7 +122,7 @@
       },
       "price": 850,
       "category": "Burgers",
-      "image": "assets/products/burger-classic.jpg",
+      "image": "assets/products/burger-classic.svg",
       "available": true,
       "ingredients": {
         "fr": "Steak haché, fromage, laitue, tomate, oignon, ketchup",
@@ -144,7 +144,7 @@
       },
       "price": 1200,
       "category": "Pizzas",
-      "image": "assets/products/pizza-margherita.jpg",
+      "image": "assets/products/pizza-margherita.svg",
       "available": true,
       "ingredients": {
         "fr": "Sauce tomate, mozzarella fraîche, basilic",
@@ -166,7 +166,7 @@
       },
       "price": 250,
       "category": "Viennoiseries",
-      "image": "assets/products/croissant-butter.jpg",
+      "image": "assets/products/croissant-butter.svg",
       "available": true,
       "ingredients": {
         "fr": "Farine, beurre, eau, sucre, sel",
@@ -188,7 +188,7 @@
       },
       "price": 450,
       "category": "Desserts",
-      "image": "assets/products/tart-lemon.jpg",
+      "image": "assets/products/tart-lemon.svg",
       "available": true,
       "ingredients": {
         "fr": "Farine, beurre, sucre, œufs, citron, crème",
@@ -210,7 +210,7 @@
       },
       "price": 300,
       "category": "Boissons",
-      "image": "assets/products/jus-orange.jpg",
+      "image": "assets/products/jus-orange.svg",
       "available": true,
       "ingredients": {
         "fr": "Jus d'orange 100% naturel",
@@ -232,7 +232,7 @@
       },
       "price": 850,
       "category": "Tacos",
-      "image": "assets/products/tacos-meat.jpg",
+      "image": "assets/products/tacos-meat.svg",
       "available": true,
       "ingredients": {
         "fr": "Viande hachée, épices, fromage, laitue, tomate, oignon",
@@ -254,7 +254,7 @@
       },
       "price": 700,
       "category": "Sandwiches",
-      "image": "assets/products/sandwich-vegan.jpg",
+      "image": "assets/products/sandwich-vegan.svg",
       "available": true,
       "ingredients": {
         "fr": "Houmous, poivron, courgette, avocat, roquette, citron",
@@ -276,7 +276,7 @@
       },
       "price": 950,
       "category": "Burgers",
-      "image": "assets/products/burger-cheese.jpg",
+      "image": "assets/products/burger-cheese.svg",
       "available": true,
       "ingredients": {
         "fr": "Deux steaks hachés, trois slices de fromage, cornichons, oignons",
