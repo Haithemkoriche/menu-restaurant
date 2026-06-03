@@ -237,7 +237,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set modal content
         modalTitle.textContent = getProductTranslation(product.name);
         modalTitle.dataset.productId = product.id; // Store product ID for add to order
-        modalImage.innerHTML = '<i class="fas fa-utensils"></i>'; // Default icon
+        // Create image element with fallback
+          modalImage.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = product.image;
+          img.alt = getProductTranslation(product.name);
+          img.onerror = function() {
+            this.onerror = null;
+            const placeholder = document.createElement('i');
+            placeholder.className = 'fas fa-utensils';
+            placeholder.style.fontSize = '40px';
+            placeholder.style.color = 'white';
+            this.replaceWith(placeholder);
+          };
+          modalImage.appendChild(img);
         modalName.textContent = getProductTranslation(product.name);
         modalCategory.textContent = getCategoryTranslation({ name: { fr: product.category } });
         modalDescription.textContent = getProductTranslation(product.description);
@@ -246,8 +259,16 @@ document.addEventListener('DOMContentLoaded', function() {
         modalAvailability.textContent = product.available ? getTranslation('available') : getTranslation('unavailable');
         modalAvailability.className = `availability-badge ${product.available ? 'available' : 'unavailable'}`;
 
-        // Show modal
+        // Quantity selector is now static in the HTML (no dynamic insertion needed)
+
+        // Reset quantity selector to default
+        const qtyInput = document.getElementById('productQuantity');
+        if (qtyInput) {
+            qtyInput.value = '1';
+        }
+        // Show modal and keep a reference for later closing
         const productModal = new bootstrap.Modal(document.getElementById('productModal'));
+        window.currentProductModal = productModal;
         productModal.show();
     }
 
@@ -277,25 +298,18 @@ document.addEventListener('DOMContentLoaded', function() {
         return orders ? JSON.parse(orders) : [];
     }
 
-    function saveOrder(product) {
+    function saveOrder(product, qty = 1) {
         const orders = getOrders();
-        const existingOrderIndex = orders.findIndex(order => order.productId === product.id);
-
-        if (existingOrderIndex >= 0) {
-            // If product already in order, increment quantity
-            orders[existingOrderIndex].quantity += 1;
-        } else {
-            // Add new product to order
-            orders.push({
-                productId: product.id,
-                name: getProductTranslation(product.name),
-                price: product.price,
-                quantity: 1,
-                category: product.category,
-                image: product.image,
-                timestamp: new Date().toISOString()
-            });
-        }
+        // Always add a new entry for each click, preserving the selected quantity
+        orders.push({
+            productId: product.id,
+            name: getProductTranslation(product.name),
+            price: product.price,
+            quantity: qty,
+            category: product.category,
+            image: product.image,
+            timestamp: new Date().toISOString()
+        });
 
         localStorage.setItem('menuOrders', JSON.stringify(orders));
         showOrderConfirmation();
@@ -327,22 +341,24 @@ document.addEventListener('DOMContentLoaded', function() {
         bootstrapToast.show();
     }
 
-    // Initialize add to order button functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        // This will run after the DOM is loaded, but we need to ensure the modal exists
-        const addToOrderBtn = document.getElementById('addToOrderBtn');
-        if (addToOrderBtn) {
-            addToOrderBtn.addEventListener('click', function() {
-                // Get the currently displayed product from the modal
-                const modalProductId = document.getElementById('productModalLabel').dataset.productId;
-                if (modalProductId && menuData) {
-                    const product = menuData.products.find(p => p.id == modalProductId);
-                    if (product) {
-                        saveOrder(product);
-                    }
+    // Initialize add to order button functionality (runs after DOM is ready)
+    const addToOrderBtn = document.getElementById('addToOrderBtn');
+    if (addToOrderBtn) {
+        addToOrderBtn.addEventListener('click', function() {
+            const modalProductId = document.getElementById('productModalLabel').dataset.productId;
+            const qtyInput = document.getElementById('productQuantity');
+            const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+            if (modalProductId && menuData) {
+                const product = menuData.products.find(p => p.id == modalProductId);
+                if (product) {
+                    saveOrder(product, qty);
                 }
-            });
-        }
-    });
+            }
+            // Close the product modal after adding to order
+            if (window.currentProductModal) {
+                window.currentProductModal.hide();
+            }
+        });
+    }
 
 });

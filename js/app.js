@@ -1,5 +1,7 @@
 // Language and table number handling
 document.addEventListener('DOMContentLoaded', function() {
+    // Global reference for the order modal to manage backdrop correctly
+    window.orderModalInstance = null;
     // Get table number from URL
     const urlParams = new URLSearchParams(window.location.search);
     const tableNumber = urlParams.get('table');
@@ -38,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // QR Code Generator (always available via modal, but button only shows with ?showqr=1)
 
+    // Show Order button in header (always visible)
+    showOrderButtonInHeader();
+
     function showQRButtonInHeader() {
         const container = document.getElementById('qRButtonContainer');
         if (!container) return;
@@ -55,7 +60,22 @@ document.addEventListener('DOMContentLoaded', function() {
         container.appendChild(qrBtn);
     }
 
-    function setLanguage(lang) {
+    function showOrderButtonInHeader() {
+    const container = document.getElementById('orderButtonContainer');
+    if (!container) return;
+    const orderBtn = document.createElement('button');
+    orderBtn.className = 'order-btn';
+    orderBtn.id = 'orderBtn';
+    orderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Commande';
+    orderBtn.title = 'Voir la commande';
+    orderBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        showOrdersModal();
+    });
+    container.appendChild(orderBtn);
+}
+
+function setLanguage(lang) {
         currentLanguage = lang;
         localStorage.setItem('selectedLanguage', lang);
 
@@ -195,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showMultipleQrCodes() {
+        // (existing code unchanged)
         const qrContent = document.getElementById('qrContent');
         if (!qrContent) return;
 
@@ -246,4 +267,64 @@ document.addEventListener('DOMContentLoaded', function() {
         qrContent.appendChild(instructions);
         qrContent.appendChild(qrGrid);
     }
+// Order modal handling
+function showOrdersModal() {
+    const modal = document.getElementById('orderModal');
+    const orderListDiv = document.getElementById('orderList');
+    const orderEmpty = document.getElementById('orderEmpty');
+    const orders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
+
+    if (orders.length === 0) {
+        orderListDiv.innerHTML = '';
+        orderEmpty.style.display = 'block';
+    } else {
+        orderEmpty.style.display = 'none';
+        orderListDiv.innerHTML = orders.map(o => {
+            const total = o.price * o.quantity;
+            return `<div class="d-flex justify-content-between align-items-center mb-2">
+                        <div><strong>${o.name}</strong> × ${o.quantity}</div>
+                        <div>${total} DA</div>
+                    </div>`;
+        }).join('');
+    }
+    // Use a persistent modal instance to avoid duplicate backdrops across locales
+    if (!window.orderModalInstance) {
+        window.orderModalInstance = new bootstrap.Modal(modal);
+    }
+    window.orderModalInstance.show();
+}
+
+// Clear orders button
+const clearBtn = document.getElementById('clearOrdersBtn');
+if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+        // Hide current modal to avoid duplicate backdrops
+        if (window.orderModalInstance) {
+            window.orderModalInstance.hide();
+        }
+        localStorage.removeItem('menuOrders');
+        showOrdersModal();
+    });
+}
+
+// Send orders button (placeholder)
+const sendBtn = document.getElementById('sendOrdersBtn');
+if (sendBtn) {
+    sendBtn.addEventListener('click', () => {
+        const orders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
+        if (!orders.length) return alert('Aucune commande à envoyer.');
+        fetch('https://example.com/api/orders', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orders })
+        })
+        .then(() => {
+            alert('Commande envoyée avec succès !');
+            localStorage.removeItem('menuOrders');
+            showOrdersModal();
+        })
+        .catch(() => alert('Erreur lors de l’envoi de la commande.'));
+    });
+}
+
 });

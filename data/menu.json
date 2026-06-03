@@ -78,7 +78,7 @@
       },
       "price": 900,
       "category": "Tacos",
-      "image": "assets/products/tacos-chicken.svg",
+      "image": "https://images.unsplash.com/photo-1600891963933-0d5c3b9e3e2e?auto=format&fit=crop&w=400&q=80",
       "available": true,
       "ingredients": {
         "fr": "Poulet grillé, fromage cheddar, laitue, tomate, oignon, frites",
@@ -100,7 +100,7 @@
       },
       "price": 750,
       "category": "Sandwiches",
-      "image": "assets/products/sandwich-club.svg",
+      "image": "https://images.unsplash.com/photo-1556912999-9b04ff3d6c09?auto=format&fit=crop&w=400&q=80",
       "available": true,
       "ingredients": {
         "fr": "Poulet, bacon, œuf, laitue, tomate, mayonnaise",
@@ -122,7 +122,7 @@
       },
       "price": 850,
       "category": "Burgers",
-      "image": "assets/products/burger-classic.svg",
+      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80",
       "available": true,
       "ingredients": {
         "fr": "Steak haché, fromage, laitue, tomate, oignon, ketchup",
@@ -144,7 +144,7 @@
       },
       "price": 1200,
       "category": "Pizzas",
-      "image": "assets/products/pizza-margherita.svg",
+      "image": "https://images.unsplash.com/photo-1548365328-8c0c205b68a4?auto=format&fit=crop&w=400&q=80",
       "available": true,
       "ingredients": {
         "fr": "Sauce tomate, mozzarella fraîche, basilic",
@@ -287,7 +287,7 @@
   ],
   "translations": {
     "fr": {
-      "welcome": "Bienvenue chez Club des Pins",
+      "welcome": "Bienvenue chez Restaurant Club des Pins",
       "hero_description": "Découvrez notre délicieux menu préparé avec passion",
       "open_now": "Ouvert maintenant",
       "search_placeholder": "Chercher un produit...",
@@ -303,7 +303,7 @@
       "all_categories": "Tous"
     },
     "ar": {
-      "welcome": "مرحبا بكم في نادي الصنوبر",
+      "welcome": "مرحبا بكم في مطعم نادي الصنوبر",
       "hero_description": "اكتشف قائمتنا اللذيذة المعدة بحب",
       "open_now": "مفتوح الآن",
       "search_placeholder": "ابحث عن منتج...",
@@ -319,7 +319,7 @@
       "all_categories": "الكل"
     },
     "en": {
-      "welcome": "Welcome to Pine Club",
+      "welcome": "Welcome to Pine Club Restaurant",
       "hero_description": "Discover our delicious menu prepared with passion",
       "open_now": "Open now",
       "search_placeholder": "Search for a product...",
