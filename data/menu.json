@@ -1,0 +1,338 @@
+{
+  "restaurant": {
+    "fr": "Club des Pains",
+    "ar": "نادي الخبز",
+    "en": "Bread Club"
+  },
+  "currency": "DA",
+  "categories": [
+    {
+      "id": 1,
+      "name": {
+        "fr": "Sandwiches",
+        "ar": "السندويتشات",
+        "en": "Sandwiches"
+      }
+    },
+    {
+      "id": 2,
+      "name": {
+        "fr": "Burgers",
+        "ar": "البرغر",
+        "en": "Burgers"
+      }
+    },
+    {
+      "id": 3,
+      "name": {
+        "fr": "Pizzas",
+        "ar": "البيتزا",
+        "en": "Pizzas"
+      }
+    },
+    {
+      "id": 4,
+      "name": {
+        "fr": "Tacos",
+        "ar": "التاكوس",
+        "en": "Tacos"
+      }
+    },
+    {
+      "id": 5,
+      "name": {
+        "fr": "Viennoiseries",
+        "ar": "الفينوايسري",
+        "en": "Viennoiseries"
+      }
+    },
+    {
+      "id": 6,
+      "name": {
+        "fr": "Desserts",
+        "ar": "الحلويات",
+        "en": "Desserts"
+      }
+    },
+    {
+      "id": 7,
+      "name": {
+        "fr": "Boissons",
+        "ar": "المشروبات",
+        "en": "Drinks"
+      }
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": {
+        "fr": "Tacos Poulet",
+        "ar": "تاكوس الدجاج",
+        "en": "Chicken Tacos"
+      },
+      "description": {
+        "fr": "Poulet grillé avec fromage et frites",
+        "ar": "دجاج مشوي مع الجبن والبطاطا",
+        "en": "Grilled chicken with cheese and fries"
+      },
+      "price": 900,
+      "category": "Tacos",
+      "image": "assets/products/tacos-chicken.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Poulet grillé, fromage cheddar, laitue, tomate, oignon, frites",
+        "ar": "دجاج مشوي, جبنة شيدر, خس, طماطم, بصل, بطاطا مقلية",
+        "en": "Grilled chicken, cheddar cheese, lettuce, tomato, onion, fries"
+      }
+    },
+    {
+      "id": 2,
+      "name": {
+        "fr": "Sandwich Club",
+        "ar": "ساندويتش كلوب",
+        "en": "Club Sandwich"
+      },
+      "description": {
+        "fr": "Poulet, bacon, œuf, laitue, tomate, mayo",
+        "ar": "دجاج, لحم مقدد, بيضة, خس, طماطم, مايونيز",
+        "en": "Chicken, bacon, egg, lettuce, tomato, mayo"
+      },
+      "price": 750,
+      "category": "Sandwiches",
+      "image": "assets/products/sandwich-club.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Poulet, bacon, œuf, laitue, tomate, mayonnaise",
+        "ar": "دجاج, لحم مقدد, بيضة, خس, طماطم, مايونيز",
+        "en": "Chicken, bacon, egg, lettuce, tomato, mayonnaise"
+      }
+    },
+    {
+      "id": 3,
+      "name": {
+        "fr": "Burger Classique",
+        "ar": "برغر كلاسيكي",
+        "en": "Classic Burger"
+      },
+      "description": {
+        "fr": "Steak haché, fromage, laitue, tomate, oignon, ketchup",
+        "ar": "لحم مفروم, جبنة, خس, طماطم, بصل, كاتشب",
+        "en": "Ground beef, cheese, lettuce, tomato, onion, ketchup"
+      },
+      "price": 850,
+      "category": "Burgers",
+      "image": "assets/products/burger-classic.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Steak haché, fromage, laitue, tomate, oignon, ketchup",
+        "ar": "لحم مفروم, جبنة, خس, طماطم, بصل, كاتشب",
+        "en": "Ground beef, cheese, lettuce, tomato, onion, ketchup"
+      }
+    },
+    {
+      "id": 4,
+      "name": {
+        "fr": "Pizza Margherita",
+        "ar": "بيتزا مارغريتا",
+        "en": "Margherita Pizza"
+      },
+      "description": {
+        "fr": "Sauce tomate, mozzarella, basilic",
+        "ar": "صلصة طماطم, موزاريلا, ريحان",
+        "en": "Tomato sauce, mozzarella, basil"
+      },
+      "price": 1200,
+      "category": "Pizzas",
+      "image": "assets/products/pizza-margherita.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Sauce tomate, mozzarella fraîche, basilic",
+        "ar": "صلصة طماطم, موزاريلا طازجة, ريحان",
+        "en": "Tomato sauce, fresh mozzarella, basil"
+      }
+    },
+    {
+      "id": 5,
+      "name": {
+        "fr": "Croissant au Beurre",
+        "ar": "كرواسان بالزبدة",
+        "en": "Butter Croissant"
+      },
+      "description": {
+        "fr": "Feuilleté pur beurre, doré à souhait",
+        "ar": "معجنات زبدة نقية, ذهبية مثالية",
+        "en": "Pure butter pastry, perfectly golden"
+      },
+      "price": 250,
+      "category": "Viennoiseries",
+      "image": "assets/products/croissant-butter.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Farine, beurre, eau, sucre, sel",
+        "ar": "دقيق, زبدة, ماء, سكر, ملح",
+        "en": "Flour, butter, water, sugar, salt"
+      }
+    },
+    {
+      "id": 6,
+      "name": {
+        "fr": "Tarte au Citron",
+        "ar": "تارت الليمون",
+        "en": "Lemon Tart"
+      },
+      "description": {
+        "fr": "Pâte sablée, crème citron, meringue italienne",
+        "ar": "عجينة مقرمشة, كريم ليمون, مرنغ إيطالي",
+        "en": "Shortcrust pastry, lemon cream, Italian meringue"
+      },
+      "price": 450,
+      "category": "Desserts",
+      "image": "assets/products/tart-lemon.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Farine, beurre, sucre, œufs, citron, crème",
+        "ar": "دقيق, زبدة, سكر, بيض, ليمون, كريم",
+        "en": "Flour, butter, sugar, eggs, lemon, cream"
+      }
+    },
+    {
+      "id": 7,
+      "name": {
+        "fr": "Jus d'Orange Pressé",
+        "ar": "عصير برتقال طازج",
+        "en": "Fresh Orange Juice"
+      },
+      "description": {
+        "fr": "100% pur jus d'orange fraîchement pressé",
+        "ar": "100% عصير برتقال طبيعي معصور طازج",
+        "en": "100% pure freshly squeezed orange juice"
+      },
+      "price": 300,
+      "category": "Boissons",
+      "image": "assets/products/jus-orange.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Jus d'orange 100% naturel",
+        "ar": "عصير برتقال 100% طبيعي",
+        "en": "100% natural orange juice"
+      }
+    },
+    {
+      "id": 8,
+      "name": {
+        "fr": "Tacos Viande",
+        "ar": "تاكوس لحم",
+        "en": "Meat Tacos"
+      },
+      "description": {
+        "fr": "Viande hachée épicée, fromage, laitue, salsa",
+        "ar": "لحم مفروم متبّل, جبنة, خس, صلصة",
+        "en": "Spiced ground meat, cheese, lettuce, salsa"
+      },
+      "price": 850,
+      "category": "Tacos",
+      "image": "assets/products/tacos-meat.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Viande hachée, épices, fromage, laitue, tomate, oignon",
+        "ar": "لحم مفروم, بهارات, جبنة, خس, طماطم, بصل",
+        "en": "Ground meat, spices, cheese, lettuce, tomato, onion"
+      }
+    },
+    {
+      "id": 9,
+      "name": {
+        "fr": "Sandwich Végan",
+        "ar": "ساندويتش نباتي",
+        "en": "Vegan Sandwich"
+      },
+      "description": {
+        "fr": "Houmous, légumes grillés, avocat, roquette",
+        "ar": "حمص, خضار مشوي, أفوكادو, جرجير",
+        "en": "Hummus, grilled vegetables, avocado, arugula"
+      },
+      "price": 700,
+      "category": "Sandwiches",
+      "image": "assets/products/sandwich-vegan.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Houmous, poivron, courgette, avocat, roquette, citron",
+        "ar": "حمص, فلفل حلو, كوسة, أفوكادو, جرجير, ليمون",
+        "en": "Hummus, bell pepper, zucchini, avocado, arugula, lemon"
+      }
+    },
+    {
+      "id": 10,
+      "name": {
+        "fr": "Burger Fromage",
+        "ar": "برغر بالجبنة",
+        "en": "Cheese Burger"
+      },
+      "description": {
+        "fr": "Double steak, triple fromage, cornichons, oignons",
+        "ar": "لحم مفروم مزدوج, ثلاث جبنة, مخللات, بصل",
+        "en": "Double patty, triple cheese, pickles, onions"
+      },
+      "price": 950,
+      "category": "Burgers",
+      "image": "assets/products/burger-cheese.jpg",
+      "available": true,
+      "ingredients": {
+        "fr": "Deux steaks hachés, trois slices de fromage, cornichons, oignons",
+        "ar": "قطعتا لحم مفروم, ثلاث شرائح جبنة, مخللات, بصل",
+        "en": "Two beef patties, three cheese slices, pickles, onions"
+      }
+    }
+  ],
+  "translations": {
+    "fr": {
+      "welcome": "Bienvenue chez Club des Pains",
+      "hero_description": "Découvrez notre délicieux menu préparé avec passion",
+      "open_now": "Ouvert maintenant",
+      "search_placeholder": "Chercher un produit...",
+      "price_range": "Gamme de Prix:",
+      "no_results": "Aucun produit trouvé",
+      "ingredients": "Ingrédients:",
+      "price": "Prix:",
+      "add_to_order": "Ajouter à la commande",
+      "close": "Fermer",
+      "all_rights": "Tous droits réservés",
+      "restaurant_name": "Club des Pains",
+      "restaurant_slogan": "Fresh Bread • Sandwiches • Fast Food",
+      "all_categories": "Tous"
+    },
+    "ar": {
+      "welcome": "مرحبا بكم في نادي الخبز",
+      "hero_description": "اكتشف قائمتنا اللذيذة المعدة بحب",
+      "open_now": "مفتوح الآن",
+      "search_placeholder": "ابحث عن منتج...",
+      "price_range": "نطاق السعر:",
+      "no_results": "لم يتم العثور على أي منتج",
+      "ingredients": "المكونات:",
+      "price": "السعر:",
+      "add_to_order": "إضافة إلى الطلب",
+      "close": "إغلاق",
+      "all_rights": "جميع الحقوق محفوظة",
+      "restaurant_name": "نادي الخبز",
+      "restaurant_slogan": "خبز طازج • سندويتشات • وجبات سريعة",
+      "all_categories": "الكل"
+    },
+    "en": {
+      "welcome": "Welcome to Bread Club",
+      "hero_description": "Discover our delicious menu prepared with passion",
+      "open_now": "Open now",
+      "search_placeholder": "Search for a product...",
+      "price_range": "Price Range:",
+      "no_results": "No products found",
+      "ingredients": "Ingredients:",
+      "price": "Price:",
+      "add_to_order": "Add to order",
+      "close": "Close",
+      "all_rights": "All rights reserved",
+      "restaurant_name": "Bread Club",
+      "restaurant_slogan": "Fresh Bread • Sandwiches • Fast Food",
+      "all_categories": "All"
+    }
+  }
+}
