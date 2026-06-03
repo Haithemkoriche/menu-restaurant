@@ -30,6 +30,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // QR Code Generator
+    const qrBtn = document.getElementById('qrBtn');
+    if (qrBtn) {
+        qrBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showQRCodeModal();
+        });
+    }
+
     function setLanguage(lang) {
         currentLanguage = lang;
         localStorage.setItem('selectedLanguage', lang);
@@ -85,5 +94,63 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 console.error('Error loading translations:', error);
             });
+    }
+
+    function showQRCodeModal() {
+        // Create modal if it doesn't exist
+        let modal = document.getElementById('qrModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'qrModal';
+            modal.tabIndex = -1;
+            modal.setAttribute('aria-hidden', 'true');
+
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="qrModalLabel">QR Code</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div id="qrCodeContainer">
+                                <!-- QR code image will be inserted here -->
+                            </div>
+                            <p class="mt-3" id="qrUrl"></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Set the URL to encode (current page URL)
+        const currentUrl = window.location.href;
+        const qrUrlElement = document.getElementById('qrUrl');
+        if (qrUrlElement) {
+            qrUrlElement.textContent = currentUrl;
+        }
+
+        // Set the QR code image
+        const qrCodeContainer = document.getElementById('qrCodeContainer');
+        if (qrCodeContainer) {
+            // Clear previous content
+            qrCodeContainer.innerHTML = '';
+
+            // Create QR code image using QR Server API
+            const qrImg = document.createElement('img');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUrl)}`;
+            qrImg.alt = 'QR Code';
+            qrImg.style.maxWidth = '100%';
+            qrCodeContainer.appendChild(qrImg);
+        }
+
+        // Show modal
+        const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
+        qrModal.show();
     }
 });

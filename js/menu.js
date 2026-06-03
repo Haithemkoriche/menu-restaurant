@@ -61,6 +61,19 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('data/menu.json')
             .then(response => response.json())
             .then(data => {
+                // Build a lookup from localized category name -> category id,
+                // then attach categoryId to each product. This makes filtering
+                // language-independent (we filter by id, not by name string).
+                const categoryIdByName = {};
+                data.categories.forEach(cat => {
+                    Object.values(cat.name).forEach(name => {
+                        categoryIdByName[name] = cat.id;
+                    });
+                });
+                data.products.forEach(product => {
+                    product.categoryId = categoryIdByName[product.category] || null;
+                });
+
                 menuData = data;
                 renderCategories();
                 filterProducts(); // Initial render
@@ -81,6 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add "All" tab
         const allTab = document.createElement('button');
         allTab.className = 'category-tab active';
+        allTab.dataset.categoryId = 'all';
         allTab.textContent = getTranslation('all_categories') || 'Tous';
         allTab.addEventListener('click', () => {
             setActiveCategory('all');
@@ -91,35 +105,27 @@ document.addEventListener('DOMContentLoaded', function() {
         menuData.categories.forEach(category => {
             const tab = document.createElement('button');
             tab.className = 'category-tab';
+            tab.dataset.categoryId = String(category.id);
             tab.textContent = getCategoryTranslation(category.name);
             tab.addEventListener('click', () => {
-                setActiveCategory(category.name.fr); // Using French as key for now
+                setActiveCategory(String(category.id));
             });
             categoryTabs.appendChild(tab);
         });
     }
 
     // Set active category
-    function setActiveCategory(category) {
-        // Update active tab
+    function setActiveCategory(categoryId) {
+        // Update active tab using stable data attribute (language-independent)
         document.querySelectorAll('.category-tab').forEach(tab => {
-            const tabText = tab.textContent.trim();
-            if (category === 'all') {
-                if (tabText === 'Tous' || tabText === 'الكل' || tabText === 'All') {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
+            if (tab.dataset.categoryId === String(categoryId)) {
+                tab.classList.add('active');
             } else {
-                if (tabText === category) {
-                    tab.classList.add('active');
-                } else {
-                    tab.classList.remove('active');
-                }
-            });
+                tab.classList.remove('active');
+            }
         });
 
-        activeCategory = category;
+        activeCategory = categoryId;
         filterProducts();
     }
 
@@ -132,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (product.price > maxPrice) return false;
 
             // Category filter
-            if (activeCategory !== 'all' && product.category !== activeCategory) return false;
+            if (activeCategory !== 'all' && String(product.categoryId) !== String(activeCategory)) return false;
 
             // Search filter
             if (searchTerm) {
@@ -201,11 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
             footerDiv.appendChild(priceSpan);
             footerDiv.appendChild(availabilitySpan);
 
-            contentDiv.appendChild(nameDiv);
-            contentDiv.appendChild(descDiv);
-            contentDiv.appendChild(footerDiv);
-
-            card.appendChild(imageDiv);
             contentDiv.appendChild(nameDiv);
             contentDiv.appendChild(descDiv);
             contentDiv.appendChild(footerDiv);

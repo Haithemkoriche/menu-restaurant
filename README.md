@@ -1,4 +1,4 @@
-# Club des Pains - QR Menu System
+# Club des Pins - QR Menu System
 
 A modern, responsive, and multilingual QR Code menu system for restaurants. Built with HTML5, CSS3, Bootstrap 5, and Vanilla JavaScript.
 
@@ -101,4 +101,4 @@ Edit the CSS variables in `css/style.css`:
 MIT License - feel free to use this for any restaurant or food business.
 
 --- 
-*Developed with ❤️ for Club des Pains Restaurant*
+*Developed with ❤️ for Club des Pins Restaurant*

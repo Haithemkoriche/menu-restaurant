@@ -1,8 +1,8 @@
 {
   "restaurant": {
-    "fr": "Club des Pains",
-    "ar": "نادي الخبز",
-    "en": "Bread Club"
+    "fr": "Club des Pins",
+    "ar": "نادي الصنوبر",
+    "en": "Pine Club"
   },
   "currency": "DA",
   "categories": [
@@ -287,7 +287,7 @@
   ],
   "translations": {
     "fr": {
-      "welcome": "Bienvenue chez Club des Pains",
+      "welcome": "Bienvenue chez Club des Pins",
       "hero_description": "Découvrez notre délicieux menu préparé avec passion",
       "open_now": "Ouvert maintenant",
       "search_placeholder": "Chercher un produit...",
@@ -298,12 +298,12 @@
       "add_to_order": "Ajouter à la commande",
       "close": "Fermer",
       "all_rights": "Tous droits réservés",
-      "restaurant_name": "Club des Pains",
+      "restaurant_name": "Club des Pins",
       "restaurant_slogan": "Fresh Bread • Sandwiches • Fast Food",
       "all_categories": "Tous"
     },
     "ar": {
-      "welcome": "مرحبا بكم في نادي الخبز",
+      "welcome": "مرحبا بكم في نادي الصنوبر",
       "hero_description": "اكتشف قائمتنا اللذيذة المعدة بحب",
       "open_now": "مفتوح الآن",
       "search_placeholder": "ابحث عن منتج...",
@@ -314,12 +314,12 @@
       "add_to_order": "إضافة إلى الطلب",
       "close": "إغلاق",
       "all_rights": "جميع الحقوق محفوظة",
-      "restaurant_name": "نادي الخبز",
+      "restaurant_name": "نادي الصنوبر",
       "restaurant_slogan": "خبز طازج • سندويتشات • وجبات سريعة",
       "all_categories": "الكل"
     },
     "en": {
-      "welcome": "Welcome to Bread Club",
+      "welcome": "Welcome to Pine Club",
       "hero_description": "Discover our delicious menu prepared with passion",
       "open_now": "Open now",
       "search_placeholder": "Search for a product...",
@@ -330,7 +330,7 @@
       "add_to_order": "Add to order",
       "close": "Close",
       "all_rights": "All rights reserved",
-      "restaurant_name": "Bread Club",
+      "restaurant_name": "Pine Club",
       "restaurant_slogan": "Fresh Bread • Sandwiches • Fast Food",
       "all_categories": "All"
     }

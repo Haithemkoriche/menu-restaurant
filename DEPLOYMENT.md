@@ -11,12 +11,15 @@
    - Click on "Pages" in the left sidebar
    - Under "Source", select the `main` branch (or `master`) and the `/root` folder
    - Click "Save"
-   - GitHub will provide your site URL (usually `https://yourusername.github.io/menu-restaurant/`)
+   - GitHub will provide your site URL (usually `https://haithemkoriche.github.io/menu-restaurant/`)
 
 3. **Customize the URL**
    - Edit the canonical URL in `index.html` line 14-15:
      ```html
-     <link rel="canonical" href="https://yourusername.github.io/menu-restaurant/">
+     <link
+       rel="canonical"
+       href="https://haithemkoriche.github.io/menu-restaurant/"
+     />
      ```
    - Update the hreflang links (lines 27-40) with your actual URL
    - Update the Open Graph image URL if you add a hero banner
@@ -43,14 +46,14 @@
 ## QR Code Generation
 
 1. **Determine Your Base URL**
-   - After deployment, your site will be at: `https://yourusername.github.io/menu-restaurant/`
+   - After deployment, your site will be at: `https://haithemkoriche.github.io/menu-restaurant/`
 
 2. **Generate QR Codes for Each Table**
    - Use a QR code generator (like [QRCode Monkey](https://www.qrcode-monkey.com/) or [QRickit](https://qrickit.com/))
    - Create URLs with table parameters:
-     - Table 1: `https://yourusername.github.io/menu-restaurant/?table=1`
-     - Table 2: `https://yourusername.github.io/menu-restaurant/?table=2`
-     - Table 3: `https://yourusername.github.io/menu-restaurant/?table=3`
+     - Table 1: `https://haithemkoriche.github.io/menu-restaurant/?table=1`
+     - Table 2: `https://haithemkoriche.github.io/menu-restaurant/?table=2`
+     - Table 3: `https://haithemkoriche.github.io/menu-restaurant/?table=3`
    - Continue for as many tables as you have
 
 3. **Download and Print**
