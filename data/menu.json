@@ -78,7 +78,7 @@
       },
       "price": 900,
       "category": "Tacos",
-      "image": "https://images.unsplash.com/photo-1600891963933-0d5c3b9e3e2e?auto=format&fit=crop&w=400&q=80",
+      "image": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Poulet grillé, fromage cheddar, laitue, tomate, oignon, frites",
@@ -100,7 +100,7 @@
       },
       "price": 750,
       "category": "Sandwiches",
-      "image": "https://images.unsplash.com/photo-1556912999-9b04ff3d6c09?auto=format&fit=crop&w=400&q=80",
+      "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Poulet, bacon, œuf, laitue, tomate, mayonnaise",
@@ -122,7 +122,7 @@
       },
       "price": 850,
       "category": "Burgers",
-      "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Steak haché, fromage, laitue, tomate, oignon, ketchup",
@@ -144,7 +144,7 @@
       },
       "price": 1200,
       "category": "Pizzas",
-      "image": "https://images.unsplash.com/photo-1548365328-8c0c205b68a4?auto=format&fit=crop&w=400&q=80",
+      "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Sauce tomate, mozzarella fraîche, basilic",
@@ -166,7 +166,7 @@
       },
       "price": 250,
       "category": "Viennoiseries",
-      "image": "assets/products/croissant-butter.svg",
+      "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Farine, beurre, eau, sucre, sel",
@@ -188,7 +188,7 @@
       },
       "price": 450,
       "category": "Desserts",
-      "image": "assets/products/tart-lemon.svg",
+      "image": "https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Farine, beurre, sucre, œufs, citron, crème",
@@ -210,7 +210,7 @@
       },
       "price": 300,
       "category": "Boissons",
-      "image": "assets/products/jus-orange.svg",
+      "image": "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Jus d'orange 100% naturel",
@@ -232,7 +232,7 @@
       },
       "price": 850,
       "category": "Tacos",
-      "image": "assets/products/tacos-meat.svg",
+      "image": "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Viande hachée, épices, fromage, laitue, tomate, oignon",
@@ -254,7 +254,7 @@
       },
       "price": 700,
       "category": "Sandwiches",
-      "image": "assets/products/sandwich-vegan.svg",
+      "image": "https://images.unsplash.com/photo-1540713434306-53f2485e49ad?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Houmous, poivron, courgette, avocat, roquette, citron",
@@ -276,7 +276,7 @@
       },
       "price": 950,
       "category": "Burgers",
-      "image": "assets/products/burger-cheese.svg",
+      "image": "https://images.unsplash.com/photo-1542574271-7f3b92e6c821?auto=format&fit=crop&w=500&q=80",
       "available": true,
       "ingredients": {
         "fr": "Deux steaks hachés, trois slices de fromage, cornichons, oignons",
