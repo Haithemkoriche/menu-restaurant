@@ -3,227 +3,114 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Club des Pins - Menu QR Code - Sandwiches, Burgers, Pizzas, Tacos et Desserts"
-    />
-    <meta
-      name="keywords"
-      content="restaurant menu, QR code menu, Club des Pins"
-    />
-    <meta property="og:title" content="Club des Pins - Menu QR" />
-    <meta
-      property="og:description"
-      content="Découvrez notre menu complet via QR Code"
-    />
-    <meta property="og:image" content="assets/banners/hero.jpg" />
-    <meta property="og:type" content="website" />
+    <meta name="description" content="Club des Pins - Menu QR Code Premium" />
     <title>Club des Pins - Menu QR</title>
 
-    <link
-      rel="canonical"
-      href="https://haithemkoriche.github.io/menu-restaurant/"
-    />
-    <link
-      rel="alternate"
-      hreflang="fr"
-      href="https://haithemkoriche.github.io/menu-restaurant/?lang=fr"
-    />
-    <link
-      rel="alternate"
-      hreflang="ar"
-      href="https://haithemkoriche.github.io/menu-restaurant/?lang=ar"
-    />
-    <link
-      rel="alternate"
-      hreflang="en"
-      href="https://haithemkoriche.github.io/menu-restaurant/?lang=en"
-    />
-
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <!-- Font Awesome -->
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <!-- Custom CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/responsive.css" />
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Restaurant",
-        "name": "Club des Pins",
-        "url": "https://haithemkoriche.github.io/menu-restaurant/",
-        "telephone": "+213 XXXXXXXXX",
-        "address": {
-          "@type": "PostalAddress",
-          "addressCountry": "DZ"
-        }
-      }
-    </script>
   </head>
   <body>
-    <!-- Header -->
     <header class="header sticky-top">
       <div class="container-fluid header-content">
         <div class="row align-items-center">
           <div class="col-auto">
             <div class="logo-section">
-              <div class="logo-badge">
-                <i class="fas fa-bread-slice"></i>
-              </div>
+              <div class="logo-badge"><i class="fas fa-bread-slice"></i></div>
               <div class="logo-text">
-                <h1 class="restaurant-name" data-i18n="restaurant_name">
-                  Club des Pins
-                </h1>
-                <p class="restaurant-slogan" data-i18n="restaurant_slogan">
-                  Fresh Bread • Sandwiches • Fast Food
-                </p>
+                <h1 class="restaurant-name" id="navRestaurantName">Club des Pins</h1>
+                <p class="restaurant-slogan" data-i18n="restaurant_slogan">Fresh Bread • Sandwiches • Fast Food</p>
               </div>
             </div>
           </div>
-
           <div class="col"></div>
-
           <div class="col-auto">
             <div class="header-controls">
-              <!-- Table Number -->
               <div class="table-badge" id="tableNumber" style="display: none">
                 <i class="fas fa-utensils"></i>
                 <span class="table-num" id="tableNum"></span>
               </div>
-
-              <!-- Language Selector -->
               <div class="language-selector">
-                <button
-                  class="lang-btn"
-                  id="langBtn"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <i class="fas fa-globe"></i>
-                  <span id="currentLang">FR</span>
+                <button class="lang-btn" id="langBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-globe"></i> <span id="currentLang">FR</span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end" id="langDropdown">
-                  <li>
-                    <a class="dropdown-item lang-option" data-lang="fr" href="#"
-                      ><span>🇫🇷</span> Français</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item lang-option" data-lang="ar" href="#"
-                      ><span>🇩🇿</span> العربية</a
-                    >
-                  </li>
-                  <li>
-                    <a class="dropdown-item lang-option" data-lang="en" href="#"
-                      ><span>🇬🇧</span> English</a
-                    >
-                  </li>
+                  <li><a class="dropdown-item lang-option" data-lang="fr" href="#"><span>🇫🇷</span> Français</a></li>
+                  <li><a class="dropdown-item lang-option" data-lang="ar" href="#"><span>🇩🇿</span> العربية</a></li>
+                  <li><a class="dropdown-item lang-option" data-lang="en" href="#"><span>🇬🇧</span> English</a></li>
                 </ul>
               </div>
-              <!-- QR Code Generator (hidden by default, shown with ?showqr=1) -->
               <div id="qRButtonContainer"></div>
-                  <div id="orderButtonContainer"></div>
-
             </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div
-        class="hero-image"
-        style="background: linear-gradient(135deg, #f5a623 0%, #d68910 100%)"
-      ></div>
+    <section class="hero animate-hero">
+      <div class="hero-image"></div>
       <div class="hero-overlay">
         <div class="hero-content">
-          <h2 class="hero-title" data-i18n="welcome">
-            Bienvenue chez Club des Pins
-          </h2>
-          <p class="hero-subtitle" data-i18n="hero_description">
-            Découvrez notre délicieux menu préparé avec passion
-          </p>
+          <h2 class="hero-title" data-i18n="welcome">Bienvenue</h2>
+          <p class="hero-subtitle" data-i18n="hero_description">Découvrez notre délicieux menu</p>
         </div>
       </div>
     </section>
 
-    <!-- Status Banner -->
     <div class="status-banner">
       <div class="container-fluid">
         <div class="status-content">
           <i class="fas fa-check-circle"></i>
           <span data-i18n="open_now">Ouvert maintenant</span>
-          <span class="status-time">11:00 - 23:00</span>
+          <span class="status-time" id="settingHours">11:00 - 23:00</span>
         </div>
       </div>
     </div>
 
-    <!-- Search Bar -->
     <div class="search-section">
       <div class="container-fluid">
         <div class="search-wrapper">
-          <input
-            type="text"
-            class="search-input"
-            id="searchInput"
-            placeholder="Chercher un produit..."
-            data-i18n-placeholder="search_placeholder"
-          />
-          <button class="search-btn" id="searchBtn">
-            <i class="fas fa-search"></i>
-          </button>
+          <input type="text" class="search-input" id="searchInput" placeholder="Chercher un produit..." data-i18n-placeholder="search_placeholder" />
+          <button class="search-btn" id="searchBtn"><i class="fas fa-search"></i></button>
         </div>
       </div>
     </div>
 
-    <!-- Main Content -->
     <main class="main-content">
       <div class="container-fluid">
-        <!-- Categories Tabs -->
         <div class="categories-section">
           <div class="categories-scroll">
-            <div class="category-tabs" id="categoryTabs">
-              <!-- Tabs will be generated by JavaScript -->
-            </div>
+            <div class="category-tabs" id="categoryTabs"></div>
           </div>
         </div>
 
-        <!-- Filters -->
         <div class="filters-section">
           <div class="filter-group">
             <label data-i18n="price_range">Gamme de Prix:</label>
-            <input
-              type="range"
-              class="form-range filter-range"
-              id="priceFilter"
-              min="0"
-              max="5000"
-              step="100"
-            />
+            <input type="range" class="form-range filter-range" id="priceFilter" min="0" max="5000" step="100" />
             <span class="price-display" id="priceDisplay">0 - 5000 DA</span>
           </div>
         </div>
 
-        <!-- Products Grid -->
         <div class="products-grid" id="productsGrid">
-          <!-- Products will be generated by JavaScript -->
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text line-1"></div>
+            <div class="skeleton-text line-2"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text line-1"></div>
+            <div class="skeleton-text line-2"></div>
+          </div>
+          <div class="skeleton-card">
+            <div class="skeleton-img"></div>
+            <div class="skeleton-text line-1"></div>
+            <div class="skeleton-text line-2"></div>
+          </div>
         </div>
 
-        <!-- No Results -->
         <div class="no-results" id="noResults" style="display: none">
           <i class="fas fa-search"></i>
           <p data-i18n="no_results">Aucun produit trouvé</p>
@@ -231,110 +118,105 @@
       </div>
     </main>
 
-    <!-- Product Details Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="fab-container">
+      <button class="fab-btn fab-main" id="fabMainBtn" aria-label="Quick Actions">
+        <i class="fas fa-ellipsis-v main-icon"></i>
+        <i class="fas fa-times close-icon d-none"></i>
+      </button>
+      <div class="fab-options d-none">
+        <button class="fab-btn fab-child" id="fabCartBtn" title="Panier">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="badge bg-danger rounded-pill order-count-badge" id="cartCountBadge">0</span>
+        </button>
+        <button class="fab-btn fab-child" id="fabWaiterBtn" title="Appeler Serveur">
+          <i class="fas fa-bell"></i>
+        </button>
+        <button class="fab-btn fab-child" id="fabContactBtn" title="Appeler">
+          <i class="fas fa-phone"></i>
+        </button>
+        <button class="fab-btn fab-child" id="fabWhatsappBtn" title="WhatsApp Chat">
+          <i class="fab fa-whatsapp"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal fade premium-modal" id="productModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
+          <div class="modal-header border-0">
             <h5 class="modal-title" id="productModalLabel"></h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <div class="product-modal-image" id="productModalImage"></div>
+          <div class="modal-body pt-0">
+            <div class="product-modal-image shadow-sm mb-4" id="productModalImage"></div>
             <div class="product-modal-details">
-              <h3 id="productModalName"></h3>
-              <p class="product-category" id="productModalCategory"></p>
-              <p class="product-description" id="productModalDescription"></p>
+              <h3 id="productModalName" class="fw-bold text-dark"></h3>
+              <p class="product-category text-muted mb-2" id="productModalCategory"></p>
+              <p class="product-description lead fs-6" id="productModalDescription"></p>
 
-              <!-- Ingredients -->
-              <div class="ingredients-section">
-                <h6 data-i18n="ingredients">Ingrédients:</h6>
-                <p id="productModalIngredients"></p>
+              <div class="ingredients-section bg-light p-3 rounded-3 mb-4">
+                <h6 class="fw-bold mb-2 text-secondary" data-i18n="ingredients"><i class="fas fa-leaf me-2"></i>Ingrédients:</h6>
+                <p id="productModalIngredients" class="mb-0 text-muted"></p>
               </div>
 
-              <!-- Price & Availability -->
-              <div class="price-availability">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <div class="price-section">
-                  <span class="price-label" data-i18n="price">Prix:</span>
-                  <span class="price-value" id="productModalPrice"></span>
+                  <span class="price-label text-muted d-block small" data-i18n="price">Prix:</span>
+                  <span class="price-value fs-3 fw-bold text-primary" id="productModalPrice"></span>
                 </div>
-                <div
-                  class="availability-badge"
-                  id="productModalAvailability"
-                ></div>
+                <div class="availability-badge" id="productModalAvailability"></div>
               </div>
-            <div class="product-quantity mb-2">
-              <label for="productQuantity" class="form-label" data-i18n="quantity">Quantité :</label>
-              <input type="number" id="productQuantity" class="form-control" value="1" min="1" style="width:80px;">
-            </div>
+
+              <div class="product-quantity mt-4 d-flex align-items-center gap-3">
+                <label for="productQuantity" class="form-label fw-semibold mb-0" data-i18n="quantity">Quantité :</label>
+                <input type="number" id="productQuantity" class="form-control custom-qty-input" value="1" min="1" />
+              </div>
             </div>
           </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-              data-i18n="close"
-            >
-              Fermer
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              id="addToOrderBtn"
-              data-i18n="add_to_order"
-            >
-              Ajouter à la commande
-            </button>
+          <div class="modal-footer border-0">
+            <button type="button" class="btn btn-light px-4 py-2 rounded-3" data-bs-dismiss="modal" data-i18n="close">Fermer</button>
+            <button type="button" class="btn btn-primary px-4 py-2 rounded-3 shadow-sm fw-medium" id="addToOrderBtn" data-i18n="add_to_order">Ajouter à la commande</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Order Modal -->
-    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade premium-modal" id="orderModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="orderModalLabel">Votre Commande</h5>
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold" id="orderModalLabel">Votre Commande</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div id="orderList"></div>
-            <p id="orderEmpty" class="text-center">Aucune commande pour le moment.</p>
+            <div id="orderList" class="d-flex flex-column gap-3"></div>
+            <p id="orderEmpty" class="text-center text-muted py-4 mb-0">Aucune commande pour le moment.</p>
+            <div id="cartTotalContainer" class="mt-4 pt-3 border-top d-none">
+              <div class="d-flex justify-content-between align-items-center fw-bold fs-5">
+                <span>Total:</span>
+                <span id="cartTotalPrice">0 DA</span>
+              </div>
+            </div>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-            <button type="button" class="btn btn-danger" id="clearOrdersBtn">Vider la commande</button>
-            <!-- <button type="button" class="btn btn-primary" id="sendOrdersBtn">Envoyer la commande</button> -->
+          <div class="modal-footer border-0 justify-content-between">
+            <button type="button" class="btn btn-outline-danger btn-sm" id="clearOrdersBtn">Vider</button>
+            <button type="button" class="btn btn-success px-4 py-2 rounded-3 shadow-sm w-70 d-flex justify-content-center align-items-center gap-2 fw-semibold" id="sendWhatsAppOrderBtn">
+              <i class="fab fa-whatsapp"></i> Commander via WhatsApp
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="container-fluid">
-        <div class="footer-content">
-          <p>
-            &copy; 2026 Club des Pins.
-            <span data-i18n="all_rights">Tous droits réservés</span>.
-          </p>
-          <p class="footer-version">v1.0 | QR Menu System</p>
-        </div>
+    <footer class="footer mt-5 bg-light border-top">
+      <div class="container-fluid text-center py-4">
+        <p class="mb-1 text-muted">&copy; 2026 <span id="footerRestaurantName">Club des Pins</span>. <span data-i18n="all_rights">Tous droits réservés</span>.</p>
+        <p class="footer-version small text-muted mb-0">v1.1 | Premium QR Menu System</p>
       </div>
     </footer>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    <!-- App Scripts -->
     <script src="js/app.js"></script>
     <script src="js/menu.js"></script>
-    <script src="js/search.js"></script>
   </body>
 </html>

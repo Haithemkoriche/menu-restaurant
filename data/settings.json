@@ -1,0 +1,12 @@
+{
+  "restaurantName": "Club des Pins",
+  "whatsappNumber": "213555725285",
+  "phoneNumber": "+213555725285",
+  "address": "Club des Pins, Algiers, Algeria",
+  "openingHours": "11:00 - 23:00",
+  "defaultLanguage": "fr",
+  "socialMedia": {
+    "instagram": "https://instagram.com/clubdespins",
+    "facebook": "https://facebook.com/clubdespins"
+  }
+}

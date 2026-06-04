@@ -1,164 +1,107 @@
-// Menu rendering and filtering
-let currentLanguage = 'fr'; // Default language, will be updated by languageChange event
+let activeLanguage = localStorage.getItem('selectedLanguage') || 'fr';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Elements
-    const categoryTabs = document.getElementById('categoryTabs');
     const productsGrid = document.getElementById('productsGrid');
+    const categoryTabs = document.getElementById('categoryTabs');
     const noResults = document.getElementById('noResults');
     const searchInput = document.getElementById('searchInput');
     const priceFilter = document.getElementById('priceFilter');
     const priceDisplay = document.getElementById('priceDisplay');
-    const searchBtn = document.getElementById('searchBtn');
 
-    // State
     let menuData = null;
-    let filteredProducts = [];
     let activeCategory = 'all';
     let searchTerm = '';
-    let maxPrice = 5000; // Default max price
+    let maxPrice = 5000;
 
-    // Initialize
-    fetchMenuData();
+    // Load menu data
+    fetch('data/menu.json')
+        .then(res => res.json())
+        .then(data => {
+            menuData = data;
+            // Build stable indexing maps
+            const categoryIdByName = {};
+            data.categories.forEach(cat => {
+                Object.values(cat.name).forEach(name => {
+                    categoryIdByName[name] = cat.id;
+                });
+            });
+            data.products.forEach(p => {
+                p.categoryId = categoryIdByName[p.category] || null;
+            });
 
-    // Event listeners
-    searchInput.addEventListener('input', debounce(() => {
+            renderCategoryTabs();
+            filterAndRenderProducts();
+        })
+        .catch(err => {
+            console.error(err);
+            productsGrid.innerHTML = '<p class="text-danger p-4 text-center">Erreur système.</p>';
+        });
+
+    // Handle incoming broadcast events safely
+    document.addEventListener('languageChanged', (e) => {
+        activeLanguage = e.detail.lang;
+        renderCategoryTabs();
+        filterAndRenderProducts();
+    });
+
+    searchInput.addEventListener('input', () => {
         searchTerm = searchInput.value.trim();
-        filterProducts();
-    }), 300);
-
-    searchBtn.addEventListener('click', () => {
-        searchTerm = searchInput.value.trim();
-        filterProducts();
+        filterAndRenderProducts();
     });
 
     priceFilter.addEventListener('input', () => {
         maxPrice = parseInt(priceFilter.value) || 5000;
         priceDisplay.textContent = `0 - ${maxPrice} DA`;
-        filterProducts();
+        filterAndRenderProducts();
     });
 
-    // Listen for language changes from app.js
-    document.addEventListener('languageChange', () => {
-        // Get current language from localStorage (set by app.js)
-        currentLanguage = localStorage.getItem('selectedLanguage') || 'fr';
-        // Re-render everything with new language
-        renderCategories();
-        filterProducts();
-    });
-
-    // Debounce function
-    function debounce(func, delay) {
-        let timeoutId;
-        return function () {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(func, delay);
-        };
-    }
-
-    // Fetch menu data
-    function fetchMenuData() {
-        fetch('data/menu.json')
-            .then(response => response.json())
-            .then(data => {
-                // Build a lookup from localized category name -> category id,
-                // then attach categoryId to each product. This makes filtering
-                // language-independent (we filter by id, not by name string).
-                const categoryIdByName = {};
-                data.categories.forEach(cat => {
-                    Object.values(cat.name).forEach(name => {
-                        categoryIdByName[name] = cat.id;
-                    });
-                });
-                data.products.forEach(product => {
-                    product.categoryId = categoryIdByName[product.category] || null;
-                });
-
-                menuData = data;
-                renderCategories();
-                filterProducts(); // Initial render
-            })
-            .catch(error => {
-                console.error('Error loading menu data:', error);
-                productsGrid.innerHTML = '<p class="text-center text-danger">Erreur de chargement du menu</p>';
-            });
-    }
-
-    // Render category tabs
-    function renderCategories() {
+    function renderCategoryTabs() {
         if (!menuData) return;
-
-        // Clear existing tabs
         categoryTabs.innerHTML = '';
 
-        // Add "All" tab
+        // Master Selector Tab
         const allTab = document.createElement('button');
-        allTab.className = 'category-tab active';
-        allTab.dataset.categoryId = 'all';
-        allTab.textContent = getTranslation('all_categories') || 'Tous';
-        allTab.addEventListener('click', () => {
-            setActiveCategory('all');
-        });
+        allTab.className = `category-tab ${activeCategory === 'all' ? 'active' : ''}`;
+        allTab.textContent = activeLanguage === 'ar' ? 'الكل' : (activeLanguage === 'en' ? 'All' : 'Tous');
+        allTab.addEventListener('click', () => selectCategory('all'));
         categoryTabs.appendChild(allTab);
 
-        // Add category tabs
-        menuData.categories.forEach(category => {
+        menuData.categories.forEach(cat => {
             const tab = document.createElement('button');
-            tab.className = 'category-tab';
-            tab.dataset.categoryId = String(category.id);
-            tab.textContent = getCategoryTranslation(category.name);
-            tab.addEventListener('click', () => {
-                setActiveCategory(String(category.id));
-            });
+            tab.className = `category-tab ${activeCategory === String(cat.id) ? 'active' : ''}`;
+            tab.textContent = cat.name[activeLanguage] || cat.name['fr'];
+            tab.addEventListener('click', () => selectCategory(String(cat.id)));
             categoryTabs.appendChild(tab);
         });
     }
 
-    // Set active category
-    function setActiveCategory(categoryId) {
-        // Update active tab using stable data attribute (language-independent)
-        document.querySelectorAll('.category-tab').forEach(tab => {
-            if (tab.dataset.categoryId === String(categoryId)) {
-                tab.classList.add('active');
-            } else {
-                tab.classList.remove('active');
-            }
-        });
-
-        activeCategory = categoryId;
-        filterProducts();
+    function selectCategory(id) {
+        activeCategory = id;
+        document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+        renderCategoryTabs();
+        filterAndRenderProducts();
     }
 
-    // Filter products based on search, category, and price
-    function filterProducts() {
+    function filterAndRenderProducts() {
         if (!menuData) return;
 
-        filteredProducts = menuData.products.filter(product => {
-            // Price filter
-            if (product.price > maxPrice) return false;
-
-            // Category filter
-            if (activeCategory !== 'all' && String(product.categoryId) !== String(activeCategory)) return false;
-
-            // Search filter
+        const filtered = menuData.products.filter(p => {
+            if (p.price > maxPrice) return false;
+            if (activeCategory !== 'all' && String(p.categoryId) !== activeCategory) return false;
             if (searchTerm) {
-                const productName = getProductTranslation(product.name).toLowerCase();
-                const productDesc = getProductTranslation(product.description).toLowerCase();
-                const searchLower = searchTerm.toLowerCase();
-                return productName.includes(searchLower) || productDesc.includes(searchLower);
+                const name = (p.name[activeLanguage] || p.name['fr']).toLowerCase();
+                const desc = (p.description[activeLanguage] || p.description['fr']).toLowerCase();
+                return name.includes(searchTerm.toLowerCase()) || desc.includes(searchTerm.toLowerCase());
             }
-
             return true;
         });
 
-        renderProducts();
+        renderGridCards(filtered);
     }
 
-    // Render products grid
-    function renderProducts() {
-        if (!menuData) return;
-
-        if (filteredProducts.length === 0) {
+    function renderGridCards(products) {
+        productsGrid.innerHTML = '';
+        if (products.length === 0) {
             productsGrid.style.display = 'none';
             noResults.style.display = 'block';
             return;
@@ -167,198 +110,128 @@ document.addEventListener('DOMContentLoaded', function() {
         productsGrid.style.display = 'grid';
         noResults.style.display = 'none';
 
-        // Clear grid
-        productsGrid.innerHTML = '';
-
-        // Create product cards
-        filteredProducts.forEach(product => {
+        products.forEach((p, index) => {
             const card = document.createElement('div');
             card.className = 'product-card';
-            card.dataset.productId = product.id;
+            // Stagger animations smoothly like Framer Motion
+            card.style.animationDelay = `${index * 0.04}s`;
 
-            // Product image
-            const imageDiv = document.createElement('div');
-            imageDiv.className = 'product-image';
-            imageDiv.innerHTML = '<i class="fas fa-utensils"></i>'; // Default icon
+            const name = p.name[activeLanguage] || p.name['fr'];
+            const desc = p.description[activeLanguage] || p.description['fr'];
 
-            // Product content
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'product-content';
+            card.innerHTML = `
+                <div class="product-image">
+                    <img src="${p.image}" alt="${name}" loading="lazy">
+                </div>
+                <div class="product-content p-3">
+                    <div class="product-name fw-bold mb-1 fs-5">${name}</div>
+                    <div class="product-description text-muted small text-truncate mb-3">${desc}</div>
+                    <div class="product-footer d-flex justify-content-between align-items-center">
+                        <span class="product-price fw-bold text-primary">${p.price} DA</span>
+                        <span class="availability-badge ${p.available ? 'text-success' : 'text-danger'} small">
+                            <i class="fas ${p.available ? 'fa-circle' : 'fa-times-circle'}" style="font-size:9px;"></i> ${p.available ? 'Dispo' : 'Complet'}
+                        </span>
+                    </div>
+                </div>
+            `;
 
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'product-name';
-            nameDiv.textContent = getProductTranslation(product.name);
-
-            const descDiv = document.createElement('div');
-            descDiv.className = 'product-description';
-            descDiv.textContent = getProductTranslation(product.description);
-
-            const footerDiv = document.createElement('div');
-            footerDiv.className = 'product-footer';
-
-            const priceSpan = document.createElement('span');
-            priceSpan.className = 'product-price';
-            priceSpan.textContent = `${product.price} ${menuData.currency}`;
-
-            const availabilitySpan = document.createElement('span');
-            availabilitySpan.className = `availability-badge ${product.available ? 'available' : 'unavailable'}`;
-            availabilitySpan.textContent = product.available ? getTranslation('available') : getTranslation('unavailable');
-
-            footerDiv.appendChild(priceSpan);
-            footerDiv.appendChild(availabilitySpan);
-
-            contentDiv.appendChild(nameDiv);
-            contentDiv.appendChild(descDiv);
-            contentDiv.appendChild(footerDiv);
-
-            card.appendChild(imageDiv);
-            card.appendChild(contentDiv);
-
-            // Add click event to open modal
-            card.addEventListener('click', () => {
-                openProductModal(product);
-            });
-
+            card.addEventListener('click', () => openDynamicProductModal(p));
             productsGrid.appendChild(card);
         });
     }
 
-    // Open product modal
-    function openProductModal(product) {
-        const modalTitle = document.getElementById('productModalLabel');
-        const modalImage = document.getElementById('productModalImage');
-        const modalName = document.getElementById('productModalName');
-        const modalCategory = document.getElementById('productModalCategory');
-        const modalDescription = document.getElementById('productModalDescription');
-        const modalIngredients = document.getElementById('productModalIngredients');
-        const modalPrice = document.getElementById('productModalPrice');
-        const modalAvailability = document.getElementById('productModalAvailability');
+    function openDynamicProductModal(product) {
+        document.getElementById('productModalLabel').dataset.productId = product.id;
+        document.getElementById('productModalName').textContent = product.name[activeLanguage] || product.name['fr'];
+        document.getElementById('productModalDescription').textContent = product.description[activeLanguage] || product.description['fr'];
+        document.getElementById('productModalIngredients').textContent = product.ingredients[activeLanguage] || product.ingredients['fr'];
+        document.getElementById('productModalPrice').textContent = `${product.price} DA`;
+        
+        const imgContainer = document.getElementById('productModalImage');
+        imgContainer.innerHTML = `<img src="${product.image}" class="img-fluid rounded-3 w-100" style="max-height:300px; object-fit:cover;">`;
 
-        // Set modal content
-        modalTitle.textContent = getProductTranslation(product.name);
-        modalTitle.dataset.productId = product.id; // Store product ID for add to order
-        // Create image element with fallback
-          modalImage.innerHTML = '';
-          const img = document.createElement('img');
-          img.src = product.image;
-          img.alt = getProductTranslation(product.name);
-          img.onerror = function() {
-            this.onerror = null;
-            const placeholder = document.createElement('i');
-            placeholder.className = 'fas fa-utensils';
-            placeholder.style.fontSize = '40px';
-            placeholder.style.color = 'white';
-            this.replaceWith(placeholder);
-          };
-          modalImage.appendChild(img);
-        modalName.textContent = getProductTranslation(product.name);
-        modalCategory.textContent = getCategoryTranslation({ name: { fr: product.category } });
-        modalDescription.textContent = getProductTranslation(product.description);
-        modalIngredients.textContent = getProductTranslation(product.ingredients);
-        modalPrice.textContent = `${product.price} ${menuData.currency}`;
-        modalAvailability.textContent = product.available ? getTranslation('available') : getTranslation('unavailable');
-        modalAvailability.className = `availability-badge ${product.available ? 'available' : 'unavailable'}`;
+        document.getElementById('productQuantity').value = 1;
 
-        // Quantity selector is now static in the HTML (no dynamic insertion needed)
+        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+        window.currentProductModal = modal;
+        modal.show();
+    }
 
-        // Reset quantity selector to default
-        const qtyInput = document.getElementById('productQuantity');
-        if (qtyInput) {
-            qtyInput.value = '1';
+    // Add To Order Handler Logic
+    document.getElementById('addToOrderBtn').addEventListener('click', () => {
+        const id = document.getElementById('productModalLabel').dataset.productId;
+        const qty = parseInt(document.getElementById('productQuantity').value) || 1;
+        const targetProduct = menuData.products.find(p => String(p.id) === id);
+
+        if (targetProduct) {
+            const currentOrders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
+            // Check if item already exists to merge quantity cleanly
+            const existingItem = currentOrders.find(item => item.productId === targetProduct.id);
+            
+            if (existingItem) {
+                existingItem.quantity += qty;
+            } else {
+                currentOrders.push({
+                    productId: targetProduct.id,
+                    name: targetProduct.name[activeLanguage] || targetProduct.name['fr'],
+                    price: targetProduct.price,
+                    quantity: qty
+                });
+            }
+
+            localStorage.setItem('menuOrders', JSON.stringify(currentOrders));
+            if (window.updateCartBadgeCount) window.updateCartBadgeCount();
+            
+            // Premium Added Confirmation Toast
+            showPremiumNotificationToast();
+            if (window.currentProductModal) window.currentProductModal.hide();
         }
-        // Show modal and keep a reference for later closing
-        const productModal = new bootstrap.Modal(document.getElementById('productModal'));
-        window.currentProductModal = productModal;
-        productModal.show();
-    }
+    });
 
-    // Helper to get translation for a product field
-    function getProductTranslation(field) {
-        if (!field || typeof field !== 'object') return field || '';
-        return field[currentLanguage] || field.fr || Object.values(field)[0] || '';
-    }
-
-    // Helper to get translation for a category field
-    function getCategoryTranslation(field) {
-        if (!field || typeof field !== 'object') return field || '';
-        return field[currentLanguage] || field.fr || Object.values(field)[0] || '';
-    }
-
-    // Get translation for UI strings
-    function getTranslation(key) {
-        if (!menuData || !menuData.translations) return key;
-        return menuData.translations[currentLanguage] && menuData.translations[currentLanguage][key]
-            ? menuData.translations[currentLanguage][key]
-            : key;
-    }
-
-    // Order management functions
-    function getOrders() {
-        const orders = localStorage.getItem('menuOrders');
-        return orders ? JSON.parse(orders) : [];
-    }
-
-    function saveOrder(product, qty = 1) {
-        const orders = getOrders();
-        // Always add a new entry for each click, preserving the selected quantity
-        orders.push({
-            productId: product.id,
-            name: getProductTranslation(product.name),
-            price: product.price,
-            quantity: qty,
-            category: product.category,
-            image: product.image,
-            timestamp: new Date().toISOString()
-        });
-
-        localStorage.setItem('menuOrders', JSON.stringify(orders));
-        showOrderConfirmation();
-    }
-
-    function showOrderConfirmation() {
-        // Create or update order confirmation toast
-        let toast = document.getElementById('orderToast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'orderToast';
-            toast.className = 'position-fixed bottom-0 end-0 p-3';
-            toast.style.zIndex = '1050';
-            document.body.appendChild(toast);
+    function showPremiumNotificationToast() {
+        let container = document.getElementById('toastWrapper');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastWrapper';
+            container.className = 'toast-container position-fixed bottom-0 start-50 translate-middle-x p-3';
+            container.style.zIndex = '1090';
+            document.body.appendChild(container);
         }
-
-        toast.innerHTML = `
-            <div class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        container.innerHTML = `
+            <div class="toast align-items-center text-bg-dark border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
                 <div class="d-flex">
-                    <div class="toast-body">
-                        Produit ajouté à la commande!
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    <div class="toast-body fw-medium"><i class="fas fa-check-circle text-success me-2"></i> Produit ajouté au panier !</div>
                 </div>
             </div>
         `;
-
-        const bootstrapToast = new bootstrap.Toast(toast);
-        bootstrapToast.show();
+        const bToast = new bootstrap.Toast(container.querySelector('.toast'));
+        bToast.show();
     }
 
-    // Initialize add to order button functionality (runs after DOM is ready)
-    const addToOrderBtn = document.getElementById('addToOrderBtn');
-    if (addToOrderBtn) {
-        addToOrderBtn.addEventListener('click', function() {
-            const modalProductId = document.getElementById('productModalLabel').dataset.productId;
-            const qtyInput = document.getElementById('productQuantity');
-            const qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
-            if (modalProductId && menuData) {
-                const product = menuData.products.find(p => p.id == modalProductId);
-                if (product) {
-                    saveOrder(product, qty);
-                }
-            }
-            // Close the product modal after adding to order
-            if (window.currentProductModal) {
-                window.currentProductModal.hide();
-            }
+    // WhatsApp Automated Message Dispatch Order Builder Engine
+    document.getElementById('sendWhatsAppOrderBtn').addEventListener('click', () => {
+        const orders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
+        if (orders.length === 0) return alert("Votre panier est vide.");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const tableNum = urlParams.get('table') ? `Table N°${urlParams.get('table')}` : 'Table: Non spécifiée';
+
+        let messageText = `Bonjour,\n\nJe souhaite passer la commande suivante :\n\n`;
+        messageText += `*${tableNum}*\n\n`;
+
+        let orderTotal = 0;
+        orders.forEach(item => {
+            const lineValue = item.price * item.quantity;
+            orderTotal += lineValue;
+            messageText += `* ${item.quantity} × ${item.name}\n`;
         });
-    }
 
+        messageText += `\n*Total : ${orderTotal} DA*\n\nMerci.`;
+
+        // Load configuration from local singleton safely
+        const targetWhatsAppNum = window.RestaurantSettings ? window.RestaurantSettings.whatsappNumber : "213555123456";
+        const targetURL = `https://wa.me/${targetWhatsAppNum}?text=${encodeURIComponent(messageText)}`;
+        
+        window.open(targetURL, '_blank');
+    });
 });

@@ -1,236 +1,84 @@
 /* ================================
-   RESPONSIVE STYLES
+   RESPONSIVE STYLES (Fusionné & Corrigé)
    ================================ */
 
-/* Mobile adjustments */
 @media (max-width: 768px) {
-    .hero {
-        height: 200px;
-    }
+    .hero { height: 200px; }
+    .hero-title { font-size: 24px; }
+    .hero-subtitle { font-size: 14px; }
+    .logo-badge { width: 40px; height: 40px; font-size: 20px; }
+    .logo-text h1 { font-size: 16px; }
+    .restaurant-slogan { font-size: 10px; }
+    .search-input { padding: 10px 12px; font-size: 13px; }
+    .search-btn { width: 40px; height: 40px; font-size: 14px; }
+    .category-tab { padding: 8px 14px; font-size: 12px; }
+    .product-image { height: 120px; font-size: 35px; }
+    .product-name { font-size: 13px; }
+    .product-description { font-size: 11px; }
+    .product-price { font-size: 14px; }
+    .availability-badge { font-size: 10px; padding: 3px 6px; }
+    .modal-body { padding: 15px; }
+    .product-modal-image { height: 250px; font-size: 50px; }
+    .product-modal-details h3 { font-size: 20px; }
+    .price-value { font-size: 20px; }
+    .btn-primary { padding: 10px 15px; font-size: 14px; }
 
-    .hero-title {
-        font-size: 24px;
+    /* Ajustement de la taille du menu flottant sur Mobile */
+    .fab-btn {
+        width: 48px;
+        height: 48px;
     }
-
-    .hero-subtitle {
-        font-size: 14px;
-    }
-
-    .logo-badge {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
-    }
-
-    .logo-text h1 {
+    .fab-child {
+        width: 42px;
+        height: 42px;
         font-size: 16px;
     }
-
-    .restaurant-slogan {
-        font-size: 10px;
+    .fab-container {
+        bottom: 16px;
+        right: 16px;
     }
-
-    .search-input {
-        padding: 10px 12px;
-        font-size: 13px;
-    }
-
-    .search-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 14px;
-    }
-
-    .category-tab {
-        padding: 8px 14px;
-        font-size: 12px;
-    }
-
-    .product-image {
-        height: 120px;
-        font-size: 35px;
-    }
-
-    .product-name {
-        font-size: 13px;
-    }
-
-    .product-description {
-        font-size: 11px;
-    }
-
-    .product-price {
-        font-size: 14px;
-    }
-
-    .availability-badge {
-        font-size: 10px;
-        padding: 3px 6px;
-    }
-
-    .modal-body {
-        padding: 15px;
-    }
-
-    .product-modal-image {
-        height: 250px;
-        font-size: 50px;
-    }
-
-    .product-modal-details h3 {
-        font-size: 20px;
-    }
-
-    .product-description {
-        font-size: 13px;
-    }
-
-    .price-value {
-        font-size: 20px;
-    }
-
-    .btn-primary {
-        padding: 10px 15px;
-        font-size: 14px;
+    .rtl .fab-container {
+        left: 16px;
+        right: auto;
     }
 }
 
-/* Extra small devices */
 @media (max-width: 480px) {
-    .hero {
-        height: 180px;
-    }
-
-    .header-content {
-        padding: 10px 15px;
-    }
-
-    .logo-section {
-        gap: 10px;
-    }
-
-    .logo-badge {
-        width: 35px;
-        height: 35px;
-        font-size: 18px;
-    }
-
-    .logo-text h1 {
-        font-size: 14px;
-    }
-
-    .restaurant-slogan {
-        font-size: 9px;
-    }
-
-    .header-controls {
-        gap: 10px;
-    }
-
-    .lang-btn {
-        padding: 6px 10px;
-        font-size: 11px;
-    }
-
-    .search-section {
-        padding: 15px 0;
-    }
-
-    .search-wrapper {
-        gap: 8px;
-    }
-
-    .search-input {
-        padding: 8px 10px;
-        font-size: 12px;
-    }
-
-    .search-btn {
-        width: 36px;
-        height: 36px;
-    }
-
-    .filters-section {
-        padding: 15px;
-    }
-
-    .filter-group {
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .filter-group label {
-        font-size: 12px;
-    }
-
-    .price-display {
-        font-size: 11px;
-        padding: 5px 10px;
-    }
-
+    .hero { height: 180px; }
+    .header-content { padding: 10px 15px; }
+    .logo-section { gap: 10px; }
+    .logo-badge { width: 35px; height: 35px; font-size: 18px; }
+    .logo-text h1 { font-size: 14px; }
+    .restaurant-slogan { font-size: 9px; }
+    .header-controls { gap: 10px; }
+    .lang-btn { padding: 6px 10px; font-size: 11px; }
+    .search-section { padding: 15px 0; }
+    .search-wrapper { gap: 8px; }
+    .search-input { padding: 8px 10px; font-size: 12px; }
+    .search-btn { width: 36px; height: 36px; }
+    .filters-section { padding: 15px; }
+    .filter-group { flex-wrap: wrap; gap: 10px; }
+    .filter-group label { font-size: 12px; }
+    .price-display { font-size: 11px; padding: 5px 10px; }
+    
+    /* Grille Mobile fluide et élégante */
     .products-grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 15px;
         padding: 0 15px 30px;
     }
-
-    .product-card {
-        margin-bottom: 10px;
-    }
-
-    .product-image {
-        height: 100px;
-        font-size: 30px;
-    }
-
-    .product-name {
-        font-size: 12px;
-        min-height: 24px;
-    }
-
-    .product-description {
-        font-size: 10px;
-    }
-
-    .product-price {
-        font-size: 13px;
-    }
-
-    .availability-badge {
-        font-size: 9px;
-        padding: 2px 5px;
-    }
-
-    .status-banner {
-        padding: 8px 0;
-    }
-
-    .status-content {
-        gap: 8px;
-        font-size: 12px;
-    }
-
-    .status-time {
-        font-size: 11px;
-    }
-
-    .hero-title {
-        font-size: 20px;
-    }
-
-    .hero-subtitle {
-        font-size: 12px;
-    }
-
-    .footer {
-        padding: 20px 0;
-    }
-
-    .footer-content p {
-        font-size: 11px;
-    }
-
-    .footer-version {
-        font-size: 10px;
-    }
+    .product-card { margin-bottom: 10px; }
+    .product-image { height: 100px; font-size: 30px; }
+    .product-name { font-size: 12px; min-height: 24px; }
+    .product-description { font-size: 10px; }
+    .product-price { font-size: 13px; }
+    .availability-badge { font-size: 9px; padding: 2px 5px; }
+    .status-banner { padding: 8px 0; }
+    .status-content { gap: 8px; font-size: 12px; }
+    .status-time { font-size: 11px; }
+    .hero-title { font-size: 20px; }
+    .hero-subtitle { font-size: 12px; }
+    .footer { padding: 20px 0; }
+    .footer-content p { font-size: 11px; }
+    .footer-version { font-size: 10px; }
 }

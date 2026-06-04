@@ -1,8 +1,24 @@
-// Language and table number handling
+// Global Configuration Object
+window.RestaurantSettings = {
+    restaurantName: "Club des Pins",
+    whatsappNumber: "",
+    phoneNumber: "",
+    openingHours: "11:00 - 23:00"
+};
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Global reference for the order modal to manage backdrop correctly
     window.orderModalInstance = null;
-    // Get table number from URL
+    
+    // 1. Initialize configuration values from settings.json
+    fetch('data/settings.json')
+        .then(res => res.json())
+        .then(settings => {
+            window.RestaurantSettings = settings;
+            applyGlobalSettings(settings);
+        })
+        .catch(err => console.error("Error fetching application settings:", err));
+
+    // Get table context metadata
     const urlParams = new URLSearchParams(window.location.search);
     const tableNumber = urlParams.get('table');
     const tableBadge = document.getElementById('tableNumber');
@@ -13,81 +29,37 @@ document.addEventListener('DOMContentLoaded', function() {
         tableNum.textContent = tableNumber;
     }
 
-    // Language handling
-    const langBtn = document.getElementById('langBtn');
-    const currentLang = document.getElementById('currentLang');
-    const langDropdown = document.getElementById('langDropdown');
-    const langOptions = langDropdown.querySelectorAll('.lang-option');
-
-    // Load language from localStorage or default to French
+    // Language processing engine
+    const langOptions = document.querySelectorAll('.lang-option');
     let currentLanguage = localStorage.getItem('selectedLanguage') || 'fr';
     setLanguage(currentLanguage);
 
-    // Language switcher
     langOptions.forEach(option => {
         option.addEventListener('click', function(e) {
             e.preventDefault();
-            const lang = this.getAttribute('data-lang');
-            setLanguage(lang);
+            setLanguage(this.getAttribute('data-lang'));
         });
     });
 
-    // Show QR button in header only if ?showqr=1 is present
-    const urlParamsHeader = new URLSearchParams(window.location.search);
-    if (urlParamsHeader.get('showqr') === '1') {
+    if (urlParams.get('showqr') === '1') {
         showQRButtonInHeader();
     }
 
-    // QR Code Generator (always available via modal, but button only shows with ?showqr=1)
+    // Initialize Floating Quick Actions UI
+    initFloatingQuickActions();
+    updateCartBadgeCount();
 
-    // Show Order button in header (always visible)
-    showOrderButtonInHeader();
-
-    function showQRButtonInHeader() {
-        const container = document.getElementById('qRButtonContainer');
-        if (!container) return;
-
-        const qrBtn = document.createElement('button');
-        qrBtn.className = 'qr-btn';
-        qrBtn.id = 'qrBtn';
-        qrBtn.innerHTML = '<i class="fas fa-qrcode"></i> Generate QR Code';
-        qrBtn.title = 'Generate QR Code';
-        qrBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            showQRCodeModal();
-        });
-
-        container.appendChild(qrBtn);
+    function applyGlobalSettings(cfg) {
+        document.getElementById('navRestaurantName').textContent = cfg.restaurantName;
+        document.getElementById('footerRestaurantName').textContent = cfg.restaurantName;
+        document.getElementById('settingHours').textContent = cfg.openingHours;
     }
 
-    function showOrderButtonInHeader() {
-    const container = document.getElementById('orderButtonContainer');
-    if (!container) return;
-    const orderBtn = document.createElement('button');
-    orderBtn.className = 'order-btn';
-    orderBtn.id = 'orderBtn';
-    orderBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Commande';
-    orderBtn.title = 'Voir la commande';
-    orderBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        showOrdersModal();
-    });
-    container.appendChild(orderBtn);
-}
-
-function setLanguage(lang) {
-        currentLanguage = lang;
+    function setLanguage(lang) {
         localStorage.setItem('selectedLanguage', lang);
+        const langMap = { 'fr': 'FR', 'ar': 'AR', 'en': 'EN' };
+        document.getElementById('currentLang').textContent = langMap[lang];
 
-        // Update button text
-        const langMap = {
-            'fr': 'FR',
-            'ar': 'AR',
-            'en': 'EN'
-        };
-        currentLang.textContent = langMap[lang];
-
-        // Set direction for Arabic
         if (lang === 'ar') {
             document.body.setAttribute('dir', 'rtl');
             document.body.classList.add('rtl');
@@ -96,235 +68,124 @@ function setLanguage(lang) {
             document.body.classList.remove('rtl');
         }
 
-        // Update all translatable elements
-        updateTranslations();
-
-        // Trigger menu refresh to update menu items in new language
-        document.dispatchEvent(new Event('languageChange'));
+        // Broadcast locale updates safely
+        updateTranslations(lang);
+        document.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
     }
 
-    function updateTranslations() {
-        // Fetch translations from menu.json
+    function updateTranslations(lang) {
         fetch('data/menu.json')
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                const translations = data.translations[currentLanguage];
-                if (translations) {
-                    // Update all elements with data-i18n attribute
-                    document.querySelectorAll('[data-i18n]').forEach(element => {
-                        const key = element.getAttribute('data-i18n');
-                        if (translations[key]) {
-                            element.textContent = translations[key];
-                        }
-                    });
-
-                    // Update placeholders
-                    document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-                        const key = element.getAttribute('data-i18n-placeholder');
-                        if (translations[key]) {
-                            element.placeholder = translations[key];
-                        }
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error loading translations:', error);
+                const translations = data.translations[lang];
+                if (!translations) return;
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    if (translations[key]) el.textContent = translations[key];
+                });
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    if (translations[key]) el.placeholder = translations[key];
+                });
             });
     }
 
-    function showQRCodeModal() {
-        // Create modal if it doesn't exist
-        let modal = document.getElementById('qrModal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.className = 'modal fade';
-            modal.id = 'qrModal';
-            modal.tabIndex = -1;
-            modal.setAttribute('aria-hidden', 'true');
+    // Floating UI Management Hook
+    function initFloatingQuickActions() {
+        const mainBtn = document.getElementById('fabMainBtn');
+        const optionsMenu = document.querySelector('.fab-options');
+        const closeIcon = mainBtn.querySelector('.close-icon');
+        const mainIcon = mainBtn.querySelector('.main-icon');
 
-            modal.innerHTML = `
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="qrModalLabel">QR Code Generator</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <button class="btn btn-outline-primary me-2" id="singleQrBtn">Single Table QR Code</button>
-                                <button class="btn btn-outline-primary" id="multipleQrBtn">All Tables QR Codes</button>
-                            </div>
-                            <div id="qrContent">
-                                <!-- QR code content will be inserted here -->
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="printQrBtn">Print QR Codes</button>
-                        </div>
-                    </>
-                </div>
-            `;
-            document.body.appendChild(modal);
+        mainBtn.addEventListener('click', () => {
+            optionsMenu.classList.toggle('d-none');
+            closeIcon.classList.toggle('d-none');
+            mainIcon.classList.toggle('d-none');
+        });
 
-            // Add event listeners for the buttons
-            modal.querySelector('#singleQrBtn').addEventListener('click', function() {
-                showSingleQrCode();
-            });
+        document.getElementById('fabCartBtn').addEventListener('click', () => {
+            showOrdersModal();
+        });
 
-            modal.querySelector('#multipleQrBtn').addEventListener('click', function() {
-                showMultipleQrCodes();
-            });
+        // "Call Waiter" logic
+        document.getElementById('fabWaiterBtn').addEventListener('click', () => {
+            const tableStr = tableNumber ? `N°${tableNumber}` : 'Non spécifiée';
+            const textMsg = `Bonjour,\n\nLa table N°${tableStr} demande l'assistance d'un serveur.\n\nMerci.`;
+            const waUrl = `https://wa.me/${window.RestaurantSettings.whatsappNumber}?text=${encodeURIComponent(textMsg)}`;
+            window.open(waUrl, '_blank');
+        });
 
-            modal.querySelector('#printQrBtn').addEventListener('click', function() {
-                window.print();
-            });
-        }
+        document.getElementById('fabContactBtn').addEventListener('click', () => {
+            window.location.href = `tel:${window.RestaurantSettings.phoneNumber}`;
+        });
 
-        // Default to single QR code view
-        showSingleQrCode();
-
-        // Show modal
-        const qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
-        qrModal.show();
+        document.getElementById('fabWhatsappBtn').addEventListener('click', () => {
+            window.open(`https://wa.me/${window.RestaurantSettings.whatsappNumber}`, '_blank');
+        });
     }
 
-    function showSingleQrCode() {
-        const qrContent = document.getElementById('qrContent');
-        if (!qrContent) return;
-
-        // Clear previous content
-        qrContent.innerHTML = '';
-
-        // Set the URL to encode (current page URL)
-        const currentUrl = window.location.href;
-
-        // Create QR code image using QR Server API
-        const qrImg = document.createElement('img');
-        qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
-        qrImg.alt = 'QR Code for current page';
-        qrImg.style.display = 'block';
-        qrImg.style.margin = '0 auto';
-
-        const qrInfo = document.createElement('p');
-        qrInfo.className = 'text-center mt-3';
-        qrInfo.textContent = currentUrl;
-
-        qrContent.appendChild(qrImg);
-        qrContent.appendChild(qrInfo);
+    function showQRButtonInHeader() {
+        const container = document.getElementById('qRButtonContainer');
+        if (!container || document.getElementById('qrBtn')) return;
+        const qrBtn = document.createElement('button');
+        qrBtn.className = 'btn btn-sm btn-light border ms-2';
+        qrBtn.id = 'qrBtn';
+        qrBtn.innerHTML = '<i class="fas fa-qrcode"></i>';
+        qrBtn.addEventListener('click', () => alert("Générateur QR activé (Simulé)"));
+        container.appendChild(qrBtn);
     }
+});
 
-    function showMultipleQrCodes() {
-        // (existing code unchanged)
-        const qrContent = document.getElementById('qrContent');
-        if (!qrContent) return;
+// Accessible Helper Context Updates
+function updateCartBadgeCount() {
+    const orders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
+    const totalCount = orders.reduce((sum, item) => sum + parseInt(item.quantity || 1), 0);
+    const badge = document.getElementById('cartCountBadge');
+    if (badge) badge.textContent = totalCount;
+}
 
-        // Clear previous content
-        qrContent.innerHTML = '';
-
-        // Base URL (without table parameter)
-        const baseUrl = window.location.href.split('?')[0];
-        const currentTable = new URLSearchParams(window.location.search).get('table') || '1';
-
-        // Generate QR codes for tables 1-20
-        const tableCount = 20;
-        const qrGrid = document.createElement('div');
-        qrGrid.className = 'qr-grid';
-        qrGrid.style.display = 'grid';
-        qrGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(120px, 1fr))';
-        qrGrid.style.gap = '15px';
-        qrGrid.style.marginBottom = '20px';
-
-        for (let i = 1; i <= tableCount; i++) {
-            const tableUrl = `${baseUrl}?table=${i}`;
-
-            const qrItem = document.createElement('div');
-            qrItem.style.textAlign = 'center';
-
-            const qrImg = document.createElement('img');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(tableUrl)}`;
-            qrImg.alt = `QR Code for table ${i}`;
-            qrImg.style.width = '100px';
-            qrImg.style.height = '100px';
-            qrImg.style.border = '1px solid #ddd';
-            qrImg.style.borderRadius = '4px';
-
-            const tableLabel = document.createElement('div');
-            tableLabel.className = 'mt-2';
-            tableLabel.style.fontSize = '14px';
-            tableLabel.style.fontWeight = 'bold';
-            tableLabel.textContent = `Table ${i}`;
-
-            qrItem.appendChild(qrImg);
-            qrItem.appendChild(tableLabel);
-            qrGrid.appendChild(qrItem);
-        }
-
-        const instructions = document.createElement('p');
-        instructions.className = 'text-center mb-3';
-        instructions.innerHTML = `<strong>Tip:</strong> Select landscape orientation for better fit when printing.`;
-
-        qrContent.appendChild(instructions);
-        qrContent.appendChild(qrGrid);
-    }
-// Order modal handling
 function showOrdersModal() {
     const modal = document.getElementById('orderModal');
     const orderListDiv = document.getElementById('orderList');
     const orderEmpty = document.getElementById('orderEmpty');
+    const totalContainer = document.getElementById('cartTotalContainer');
+    const totalPriceSpan = document.getElementById('cartTotalPrice');
     const orders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
 
     if (orders.length === 0) {
         orderListDiv.innerHTML = '';
         orderEmpty.style.display = 'block';
+        totalContainer.classList.add('d-none');
     } else {
         orderEmpty.style.display = 'none';
-        orderListDiv.innerHTML = orders.map(o => {
-            const total = o.price * o.quantity;
-            return `<div class="d-flex justify-content-between align-items-center mb-2">
-                        <div><strong>${o.name}</strong> × ${o.quantity}</div>
-                        <div>${total} DA</div>
-                    </div>`;
+        totalContainer.classList.remove('d-none');
+        
+        let cumulativeTotal = 0;
+        orderListDiv.innerHTML = orders.map((o, idx) => {
+            const lineTotal = o.price * o.quantity;
+            cumulativeTotal += lineTotal;
+            return `
+                <div class="d-flex justify-content-between align-items-center bg-light p-2.5 rounded-3 border-0">
+                    <div>
+                        <span class="fw-bold text-dark">${o.name}</span>
+                        <span class="text-muted ms-1 small">× ${o.quantity}</span>
+                    </div>
+                    <div class="fw-semibold text-primary">${lineTotal} DA</div>
+                </div>
+            `;
         }).join('');
+        totalPriceSpan.textContent = `${cumulativeTotal} DA`;
     }
-    // Use a persistent modal instance to avoid duplicate backdrops across locales
+    
     if (!window.orderModalInstance) {
         window.orderModalInstance = new bootstrap.Modal(modal);
     }
     window.orderModalInstance.show();
 }
 
-// Clear orders button
-const clearBtn = document.getElementById('clearOrdersBtn');
-if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-        // Hide current modal to avoid duplicate backdrops
-        if (window.orderModalInstance) {
-            window.orderModalInstance.hide();
-        }
-        localStorage.removeItem('menuOrders');
-        showOrdersModal();
-    });
-}
-
-// Send orders button (placeholder)
-const sendBtn = document.getElementById('sendOrdersBtn');
-if (sendBtn) {
-    sendBtn.addEventListener('click', () => {
-        const orders = JSON.parse(localStorage.getItem('menuOrders') || '[]');
-        if (!orders.length) return alert('Aucune commande à envoyer.');
-        fetch('https://example.com/api/orders', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orders })
-        })
-        .then(() => {
-            alert('Commande envoyée avec succès !');
-            localStorage.removeItem('menuOrders');
-            showOrdersModal();
-        })
-        .catch(() => alert('Erreur lors de l’envoi de la commande.'));
-    });
-}
-
+// Global Order Reset
+document.getElementById('clearOrdersBtn').addEventListener('click', () => {
+    localStorage.removeItem('menuOrders');
+    updateCartBadgeCount();
+    showOrdersModal();
 });
