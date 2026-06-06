@@ -287,7 +287,7 @@
   ],
   "translations": {
     "fr": {
-      "welcome": "Bienvenue chez Restaurant Club des Pins",
+      "welcome": "Bienvenue chez {restaurant}",
       "hero_description": "Découvrez notre délicieux menu préparé avec passion",
       "open_now": "Ouvert maintenant",
       "search_placeholder": "Chercher un produit...",
@@ -305,7 +305,7 @@
       "packs_title": "Nos Packs / Offres Spéciales"
     },
     "ar": {
-      "welcome": "مرحبا بكم في مطعم نادي الصنوبر",
+      "welcome": "أهلاً بك في {restaurant}",
       "hero_description": "اكتشف قائمتنا اللذيذة المعدة بحب",
       "open_now": "مفتوح الآن",
       "search_placeholder": "ابحث عن منتج...",
@@ -323,7 +323,7 @@
       "packs_title": "الباقات / العروض الخاصة"
     },
     "en": {
-      "welcome": "Welcome to Pine Club Restaurant",
+      "welcome": "Welcome to {restaurant}",
       "hero_description": "Discover our delicious menu prepared with passion",
       "open_now": "Open now",
       "search_placeholder": "Search for a product...",

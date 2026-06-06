@@ -85,7 +85,6 @@ async function fetchPublishedSheet(publishedId, sheetName, gids) {
         const csv = await fetchPublishedSheetCSV(publishedId, gid);
         return parseCSV(csv);
     } catch (e) {
-        console.warn(`Sheet "${sheetName}" not found, trying gid=0:`, e);
         if (gid !== '0') {
             try {
                 const csv = await fetchPublishedSheetCSV(publishedId, '0');
@@ -103,7 +102,7 @@ async function fetchSheetGviz(sheetId, sheetName) {
     const jsonStr = text.replace(/\/\*O_o\*\//, '').replace(/google\.visualization\.Query\.setResponse\(/, '').replace(/\);$/, '');
     const parsed = JSON.parse(jsonStr);
     const cols = parsed.table.cols.map(c => c.label || c.id);
-    return parsed.table.rows.map(row => {
+    const result = parsed.table.rows.map(row => {
         const obj = {};
         row.c.forEach((cell, i) => {
             if (cell) {
@@ -116,6 +115,8 @@ async function fetchSheetGviz(sheetId, sheetName) {
         });
         return obj;
     });
+    result.__cols = parsed.table.cols;
+    return result;
 }
 
 async function fetchAllSheetsGviz(sheetId, sheets) {
@@ -124,7 +125,6 @@ async function fetchAllSheetsGviz(sheetId, sheets) {
         try {
             results[name] = await fetchSheetGviz(sheetId, name);
         } catch (e) {
-            console.warn(`gviz fetch failed for "${name}":`, e);
             results[name] = [];
         }
     });
@@ -143,12 +143,10 @@ async function fetchAllSheetsCSV(publishedId, sheets) {
                 const csv = await fetchPublishedSheetCSV(publishedId, gid);
                 results[name] = parseCSV(csv);
             } catch (e) {
-                console.warn(`csv fetch failed for "${name}":`, e);
             }
         });
         await Promise.all(fetches);
     } catch (e) {
-        console.warn('Failed to get sheet GIDs:', e);
     }
     return results;
 }
@@ -162,10 +160,6 @@ async function loadAllFromGoogleSheets(sheetId) {
 
     let allData;
     if (isPublished) {
-        console.warn('⚠️ ID publié détecté (2PACX-...). Le plus fiable est d\'utiliser l\'ID réel du spreadsheet.');
-        console.warn('   Prends l\'ID depuis la barre d\'URL quand tu édites le fichier dans Google Sheets.');
-        console.warn('   Ex: https://docs.google.com/spreadsheets/d/{REAL_ID}/edit');
-        console.warn('   Tentative avec l\'API gviz...');
         allData = await fetchAllSheetsGviz(cleanId, sheetNames);
     } else {
         allData = await fetchAllSheetsGviz(cleanId, sheetNames);
@@ -173,7 +167,31 @@ async function loadAllFromGoogleSheets(sheetId) {
     const [settingsRows, categoriesRows, menuRows, packsRows, promosRows, translationsRows] = sheetNames.map(n => allData[n] || []);
 
     const settings = {};
-    settingsRows.forEach(row => { if (row.key && row.value) settings[row.key] = row.value; });
+    const rawCols = settingsRows.__cols;
+    if (rawCols && rawCols.length >= 2) {
+        const labelA = rawCols[0].label || '';
+        const labelB = rawCols[1].label || '';
+        const knownHeaders = ['key', 'Key', 'name', 'Name', 'value', 'Value', 'val', 'Val'];
+        function stripHeader(label) {
+            for (const h of knownHeaders) {
+                if (label.startsWith(h + ' ')) return label.slice(h.length + 1).trim();
+            }
+            return '';
+        }
+        const mergedKey = stripHeader(labelA);
+        const mergedVal = stripHeader(labelB);
+        if (mergedKey && mergedVal) {
+            settings[mergedKey] = mergedVal;
+        }
+    }
+    settingsRows.forEach(row => {
+        const vals = Object.values(row);
+        const k = String(vals[0] || '').trim();
+        const v = String(vals[1] || '').trim();
+        if (k && v) {
+            settings[k] = v;
+        }
+    });
 
     const categories = categoriesRows.map(row => ({
         id: parseInt(row.id) || 0,
@@ -322,7 +340,6 @@ document.addEventListener('DOMContentLoaded', function () {
             updateSyncStatus(false);
         })
         .catch(err => {
-            console.warn('settings.json fetch failed, using defaults:', err);
             initSyncButton();
             updateSyncStatus(false);
         });
@@ -348,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
         window.GoogleSheetsData = data;
         if (data.settings) {
             Object.assign(window.RestaurantSettings, data.settings);
-            applyGlobalSettings(data.settings);
+            applyGlobalSettings(window.RestaurantSettings);
         }
         window.PromoData = data.promos || [];
         window.PacksData = data.packs || [];
@@ -359,12 +376,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function applyGlobalSettings(cfg) {
+        const name = cfg.restaurantName || cfg.restaurant_name || cfg.RestaurantName || cfg['Restaurant Name'] || '';
+        const hours = cfg.openingHours || cfg.opening_hours || cfg.OpeningHours || cfg['Opening Hours'] || '';
         const nameEl = document.getElementById('navRestaurantName');
         const footerEl = document.getElementById('footerRestaurantName');
         const hoursEl = document.getElementById('settingHours');
-        if (nameEl) nameEl.textContent = cfg.restaurantName || cfg.restaurant_name || 'Restaurant';
-        if (footerEl) footerEl.textContent = cfg.restaurantName || cfg.restaurant_name || 'Restaurant';
-        if (hoursEl) hoursEl.textContent = cfg.openingHours || cfg.opening_hours || '';
+        if (nameEl && name) nameEl.textContent = name;
+        if (footerEl && name) footerEl.textContent = name;
+        if (hoursEl && hours) hoursEl.textContent = hours;
+        window._restaurantName = name;
+        const lang = localStorage.getItem('selectedLanguage') || 'fr';
+        updateTranslations(lang);
     }
 
     function setLanguage(lang) {
@@ -384,16 +406,17 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateTranslations(lang) {
+        const rn = window._restaurantName || '';
         const data = window.GoogleSheetsData;
         if (data && data.translations && data.translations[lang]) {
             const t = data.translations[lang];
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (t[key]) el.textContent = t[key];
+                if (t[key]) el.textContent = t[key].replace(/\{restaurant\}/g, rn);
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
-                if (t[key]) el.placeholder = t[key];
+                if (t[key]) el.placeholder = t[key].replace(/\{restaurant\}/g, rn);
             });
             return;
         }
@@ -402,11 +425,11 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!translations) return;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[key]) el.textContent = translations[key];
+                if (translations[key]) el.textContent = translations[key].replace(/\{restaurant\}/g, rn);
             });
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
-                if (translations[key]) el.placeholder = translations[key];
+                if (translations[key]) el.placeholder = translations[key].replace(/\{restaurant\}/g, rn);
             });
         }).catch(() => {});
     }
