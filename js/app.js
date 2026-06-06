@@ -15,18 +15,95 @@ window.syncInProgress = false;
 const GS_CACHE_KEY = 'gsheets_cache';
 const GS_CACHE_TIME = 5 * 60 * 1000;
 
-function getGvizUrl(sheetId, sheetName) {
-    return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+function extractSheetId(input) {
+    if (!input) return '';
+    const trimmed = input.trim();
+    const m = trimmed.match(/\/d\/(e\/[^/]+|[^/]+?)(?:\/|$)/);
+    if (m) return m[1];
+    return trimmed;
 }
 
-function parseGvizResponse(text) {
+function parseCSVLine(line) {
+    const result = [];
+    let current = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') {
+            if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+            else inQuotes = !inQuotes;
+        } else if (c === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+        } else {
+            current += c;
+        }
+    }
+    result.push(current.trim());
+    return result;
+}
+
+function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    const headers = parseCSVLine(lines[0]);
+    return lines.slice(1).map(line => {
+        const vals = parseCSVLine(line);
+        const obj = {};
+        headers.forEach((h, i) => { if (h) obj[h.trim()] = (vals[i] || '').trim(); });
+        return obj;
+    }).filter(o => Object.values(o).some(v => v));
+}
+
+async function fetchPublishedSheetCSV(publishedId, sheetGid) {
+    const url = `https://docs.google.com/spreadsheets/d/e/${publishedId}/pubhtml?output=csv&gid=${sheetGid}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+}
+
+async function getPublishedSheetGids(publishedId) {
+    const url = `https://docs.google.com/spreadsheets/d/e/${publishedId}/pubhtml`;
+    const res = await fetch(url);
+    const html = await res.text();
+    const gids = {};
+    const regex = /<li[^>]+data-id=['"](\d+)['"][^>]*>\s*<a[^>]*>([\s\S]*?)<\/a>/gi;
+    let m;
+    while ((m = regex.exec(html)) !== null) {
+        const name = m[2].replace(/<[^>]*>/g, '').trim();
+        if (name) gids[name] = m[1];
+    }
+    if (Object.keys(gids).length === 0) {
+        const fallback = html.match(/['"]sheet_name['"]\s*:\s*['"]([^'"]+)['"]/i);
+        if (fallback) gids[fallback[1]] = '0';
+    }
+    return gids;
+}
+
+async function fetchPublishedSheet(publishedId, sheetName, gids) {
+    const gid = (gids && gids[sheetName]) || '0';
+    try {
+        const csv = await fetchPublishedSheetCSV(publishedId, gid);
+        return parseCSV(csv);
+    } catch (e) {
+        console.warn(`Sheet "${sheetName}" not found, trying gid=0:`, e);
+        if (gid !== '0') {
+            try {
+                const csv = await fetchPublishedSheetCSV(publishedId, '0');
+                return parseCSV(csv);
+            } catch (e2) { return []; }
+        }
+        return [];
+    }
+}
+
+async function fetchSheetGviz(sheetId, sheetName) {
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+    const res = await fetch(url);
+    const text = await res.text();
     const jsonStr = text.replace(/\/\*O_o\*\//, '').replace(/google\.visualization\.Query\.setResponse\(/, '').replace(/\);$/, '');
-    return JSON.parse(jsonStr);
-}
-
-function gvizRowsToObjects(response) {
-    const cols = response.table.cols.map(c => c.label || c.id);
-    return response.table.rows.map(row => {
+    const parsed = JSON.parse(jsonStr);
+    const cols = parsed.table.cols.map(c => c.label || c.id);
+    return parsed.table.rows.map(row => {
         const obj = {};
         row.c.forEach((cell, i) => {
             if (cell) {
@@ -41,99 +118,129 @@ function gvizRowsToObjects(response) {
     });
 }
 
-async function fetchSheet(sheetId, sheetName) {
-    const url = getGvizUrl(sheetId, sheetName);
-    const res = await fetch(url);
-    const text = await res.text();
-    const parsed = parseGvizResponse(text);
-    return gvizRowsToObjects(parsed);
+async function fetchAllSheetsGviz(sheetId, sheets) {
+    const results = {};
+    const fetches = sheets.map(async name => {
+        try {
+            results[name] = await fetchSheetGviz(sheetId, name);
+        } catch (e) {
+            console.warn(`gviz fetch failed for "${name}":`, e);
+            results[name] = [];
+        }
+    });
+    await Promise.all(fetches);
+    return results;
+}
+
+async function fetchAllSheetsCSV(publishedId, sheets) {
+    const results = {};
+    sheets.forEach(name => results[name] = []);
+    try {
+        const gids = await getPublishedSheetGids(publishedId);
+        const fetches = sheets.map(async name => {
+            try {
+                const gid = (gids && gids[name]) || '0';
+                const csv = await fetchPublishedSheetCSV(publishedId, gid);
+                results[name] = parseCSV(csv);
+            } catch (e) {
+                console.warn(`csv fetch failed for "${name}":`, e);
+            }
+        });
+        await Promise.all(fetches);
+    } catch (e) {
+        console.warn('Failed to get sheet GIDs:', e);
+    }
+    return results;
 }
 
 async function loadAllFromGoogleSheets(sheetId) {
     if (!sheetId) return null;
-    try {
-        const [settingsRows, categoriesRows, menuRows, packsRows, promosRows, translationsRows] = await Promise.all([
-            fetchSheet(sheetId, 'settings').catch(() => []),
-            fetchSheet(sheetId, 'categories').catch(() => []),
-            fetchSheet(sheetId, 'menu').catch(() => []),
-            fetchSheet(sheetId, 'packs').catch(() => []),
-            fetchSheet(sheetId, 'promos').catch(() => []),
-            fetchSheet(sheetId, 'translations').catch(() => [])
-        ]);
+    const rawId = extractSheetId(sheetId);
+    const cleanId = rawId.replace(/^e\//, '');
+    const isPublished = /^(e\/|2PACX-)/.test(rawId);
+    const sheetNames = ['settings', 'categories', 'menu', 'packs', 'promos', 'translations'];
 
-        const settings = {};
-        settingsRows.forEach(row => { if (row.key && row.value) settings[row.key] = row.value; });
-
-        const categories = categoriesRows.map(row => ({
-            id: parseInt(row.id) || 0,
-            name: { fr: row.name_fr || '', ar: row.name_ar || '', en: row.name_en || '' }
-        })).filter(c => c.id > 0);
-
-        const catNameToId = {};
-        categories.forEach(cat => {
-            Object.values(cat.name).forEach(n => { if (n) catNameToId[n] = cat.id; });
-        });
-
-        const products = menuRows.map(row => ({
-            id: parseInt(row.id) || 0,
-            name: { fr: row.name_fr || '', ar: row.name_ar || '', en: row.name_en || '' },
-            description: { fr: row.description_fr || '', ar: row.description_ar || '', en: row.description_en || '' },
-            price: parseInt(row.price) || 0,
-            promo_price: row.promo_price ? parseInt(row.promo_price) : null,
-            is_promo: row.is_promo === 'TRUE' || row.is_promo === 'true' || row.is_promo === true,
-            category: row.category || '',
-            categoryId: catNameToId[row.category] || null,
-            image: row.image || '',
-            available: row.available === 'TRUE' || row.available === 'true' || row.available === true || row.available === '',
-            stock: row.stock ? parseInt(row.stock) : null,
-            ingredients: { fr: row.ingredients_fr || '', ar: row.ingredients_ar || '', en: row.ingredients_en || '' }
-        })).filter(p => p.id > 0);
-
-        const packs = packsRows.map(row => ({
-            id: parseInt(row.id) || 0,
-            name: { fr: row.name_fr || '', ar: row.name_ar || '', en: row.name_en || '' },
-            description: { fr: row.description_fr || '', ar: row.description_ar || '', en: row.description_en || '' },
-            price: parseInt(row.price) || 0,
-            image: row.image || '',
-            items: row.items || '',
-            available: row.available === 'TRUE' || row.available === 'true' || row.available === true || row.available === ''
-        })).filter(p => p.id > 0);
-
-        const promos = promosRows.map(row => ({
-            id: parseInt(row.id) || 0,
-            title: { fr: row.title_fr || '', ar: row.title_ar || '', en: row.title_en || '' },
-            description: { fr: row.description_fr || '', ar: row.description_ar || '', en: row.description_en || '' },
-            image: row.image || '',
-            type: row.type || 'percentage',
-            value: row.value || '0',
-            active: row.active === 'TRUE' || row.active === 'true' || row.active === true
-        })).filter(p => p.id > 0 && p.active);
-
-        const translations = {};
-        translationsRows.forEach(row => {
-            if (row.key) {
-                translations[row.key] = { fr: row.fr || '', ar: row.ar || '', en: row.en || '' };
-            }
-        });
-
-        const inventory = {};
-        products.forEach(p => {
-            if (p.stock !== null) inventory[p.id] = p.stock;
-        });
-
-        return {
-            settings,
-            categories,
-            products,
-            packs,
-            promos,
-            translations,
-            inventory
-        };
-    } catch (e) {
-        console.warn('Google Sheets fetch failed:', e);
-        return null;
+    let allData;
+    if (isPublished) {
+        console.warn('⚠️ ID publié détecté (2PACX-...). Le plus fiable est d\'utiliser l\'ID réel du spreadsheet.');
+        console.warn('   Prends l\'ID depuis la barre d\'URL quand tu édites le fichier dans Google Sheets.');
+        console.warn('   Ex: https://docs.google.com/spreadsheets/d/{REAL_ID}/edit');
+        console.warn('   Tentative avec l\'API gviz...');
+        allData = await fetchAllSheetsGviz(cleanId, sheetNames);
+    } else {
+        allData = await fetchAllSheetsGviz(cleanId, sheetNames);
     }
+    const [settingsRows, categoriesRows, menuRows, packsRows, promosRows, translationsRows] = sheetNames.map(n => allData[n] || []);
+
+    const settings = {};
+    settingsRows.forEach(row => { if (row.key && row.value) settings[row.key] = row.value; });
+
+    const categories = categoriesRows.map(row => ({
+        id: parseInt(row.id) || 0,
+        name: { fr: row.name_fr || '', ar: row.name_ar || '', en: row.name_en || '' }
+    })).filter(c => c.id > 0);
+
+    const catNameToId = {};
+    categories.forEach(cat => {
+        Object.values(cat.name).forEach(n => { if (n) catNameToId[n] = cat.id; });
+    });
+
+    const products = menuRows.map(row => ({
+        id: parseInt(row.id) || 0,
+        name: { fr: row.name_fr || '', ar: row.name_ar || '', en: row.name_en || '' },
+        description: { fr: row.description_fr || '', ar: row.description_ar || '', en: row.description_en || '' },
+        price: parseInt(row.price) || 0,
+        promo_price: row.promo_price ? parseInt(row.promo_price) : null,
+        is_promo: row.is_promo === 'TRUE' || row.is_promo === 'true' || row.is_promo === true,
+        category: row.category || '',
+        categoryId: catNameToId[row.category] || null,
+        image: row.image || '',
+        available: row.available === 'TRUE' || row.available === 'true' || row.available === true || row.available === '',
+        stock: row.stock ? parseInt(row.stock) : null,
+        ingredients: { fr: row.ingredients_fr || '', ar: row.ingredients_ar || '', en: row.ingredients_en || '' }
+    })).filter(p => p.id > 0);
+
+    const packs = packsRows.map(row => ({
+        id: parseInt(row.id) || 0,
+        name: { fr: row.name_fr || '', ar: row.name_ar || '', en: row.name_en || '' },
+        description: { fr: row.description_fr || '', ar: row.description_ar || '', en: row.description_en || '' },
+        price: parseInt(row.price) || 0,
+        image: row.image || '',
+        items: row.items || '',
+        available: row.available === 'TRUE' || row.available === 'true' || row.available === true || row.available === ''
+    })).filter(p => p.id > 0);
+
+    const promos = promosRows.map(row => ({
+        id: parseInt(row.id) || 0,
+        title: { fr: row.title_fr || '', ar: row.title_ar || '', en: row.title_en || '' },
+        description: { fr: row.description_fr || '', ar: row.description_ar || '', en: row.description_en || '' },
+        image: row.image || '',
+        type: row.type || 'percentage',
+        value: row.value || '0',
+        active: row.active === 'TRUE' || row.active === 'true' || row.active === true
+    })).filter(p => p.id > 0 && p.active);
+
+    const translations = {};
+    translationsRows.forEach(row => {
+        if (row.key) {
+            translations[row.key] = { fr: row.fr || '', ar: row.ar || '', en: row.en || '' };
+        }
+    });
+
+    const inventory = {};
+    products.forEach(p => {
+        if (p.stock !== null) inventory[p.id] = p.stock;
+    });
+
+    return {
+        settings,
+        categories,
+        products,
+        packs,
+        promos,
+        translations,
+        inventory
+    };
 }
 
 function cacheSheetData(data) {
@@ -198,8 +305,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (urlParams.get('showqr') === '1') showQRButtonInHeader();
 
-    const sheetId = window.RestaurantSettings.googleSheetsId;
-    if (window.RestaurantSettings.googleSheetsEnabled && sheetId) {
+    initCallWaiterFAB();
+    initFloatingQuickActions();
+    updateCartBadgeCount();
+    renderPromoBanners();
+
+    fetch('data/settings.json')
+        .then(res => res.json())
+        .then(settings => {
+            window.RestaurantSettings = settings;
+            applyGlobalSettings(settings);
+            if (settings.googleSheetsEnabled && settings.googleSheetsId) {
+                loadGoogleSheetsData(settings.googleSheetsId);
+            }
+            initSyncButton();
+            updateSyncStatus(false);
+        })
+        .catch(err => {
+            console.warn('settings.json fetch failed, using defaults:', err);
+            initSyncButton();
+            updateSyncStatus(false);
+        });
+
+    function loadGoogleSheetsData(sheetId) {
+        if (!sheetId) return;
         const cached = getCachedSheetData();
         if (cached) {
             applySheetData(cached);
@@ -214,12 +343,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }).catch(() => {});
     }
-
-    initCallWaiterFAB();
-    initFloatingQuickActions();
-    initSyncButton();
-    updateCartBadgeCount();
-    renderPromoBanners();
 
     function applySheetData(data) {
         window.GoogleSheetsData = data;
