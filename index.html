@@ -31,6 +31,10 @@
                 <i class="fas fa-utensils"></i>
                 <span class="table-num" id="tableNum"></span>
               </div>
+              <button class="btn btn-sm btn-outline-primary sync-btn" id="syncDataBtn" title="Synchroniser" style="display:none">
+                <i class="fas fa-sync"></i>
+              </button>
+              <span class="sync-status" id="syncStatus"></span>
               <div class="language-selector">
                 <button class="lang-btn" id="langBtn" data-bs-toggle="dropdown" aria-expanded="false">
                   <i class="fas fa-globe"></i> <span id="currentLang">FR</span>
@@ -68,6 +72,8 @@
       </div>
     </div>
 
+    <div id="promoBannerContainer" class="promo-banner-container" style="display:none"></div>
+
     <div class="search-section">
       <div class="container-fluid">
         <div class="search-wrapper">
@@ -92,6 +98,13 @@
             <span class="price-display" id="priceDisplay">0 - 5000 DA</span>
           </div>
         </div>
+
+        <section id="packsSection" class="packs-section" style="display:none">
+          <div class="packs-header">
+            <h3 class="packs-title" data-i18n="packs_title"><i class="fas fa-box-open me-2"></i>Nos Packs / Offres Spéciales</h3>
+          </div>
+          <div class="packs-grid" id="packsGrid"></div>
+        </section>
 
         <div class="products-grid" id="productsGrid">
           <div class="skeleton-card">
@@ -211,7 +224,7 @@
     <footer class="footer mt-5 bg-light border-top">
       <div class="container-fluid text-center py-4">
         <p class="mb-1 text-muted">&copy; 2026 <span id="footerRestaurantName">Club des Pins</span>. <span data-i18n="all_rights">Tous droits réservés</span>.</p>
-        <p class="footer-version small text-muted mb-0">v1.1 | Premium QR Menu System</p>
+        <p class="footer-version small text-muted mb-0">v2.0 | Premium QR Menu System</p>
       </div>
     </footer>
 

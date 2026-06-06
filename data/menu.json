@@ -295,12 +295,14 @@
       "no_results": "Aucun produit trouvé",
       "ingredients": "Ingrédients:",
       "price": "Prix:",
+      "quantity": "Quantité :",
       "add_to_order": "Ajouter à la commande",
       "close": "Fermer",
       "all_rights": "Tous droits réservés",
       "restaurant_name": "Club des Pins",
       "restaurant_slogan": "Fresh Bread • Sandwiches • Fast Food",
-      "all_categories": "Tous"
+      "all_categories": "Tous",
+      "packs_title": "Nos Packs / Offres Spéciales"
     },
     "ar": {
       "welcome": "مرحبا بكم في مطعم نادي الصنوبر",
@@ -311,12 +313,14 @@
       "no_results": "لم يتم العثور على أي منتج",
       "ingredients": "المكونات:",
       "price": "السعر:",
+      "quantity": "الكمية:",
       "add_to_order": "إضافة إلى الطلب",
       "close": "إغلاق",
       "all_rights": "جميع الحقوق محفوظة",
       "restaurant_name": "نادي الصنوبر",
       "restaurant_slogan": "خبز طازج • سندويتشات • وجبات سريعة",
-      "all_categories": "الكل"
+      "all_categories": "الكل",
+      "packs_title": "الباقات / العروض الخاصة"
     },
     "en": {
       "welcome": "Welcome to Pine Club Restaurant",
@@ -327,12 +331,14 @@
       "no_results": "No products found",
       "ingredients": "Ingredients:",
       "price": "Price:",
+      "quantity": "Quantity:",
       "add_to_order": "Add to order",
       "close": "Close",
       "all_rights": "All rights reserved",
       "restaurant_name": "Pine Club",
       "restaurant_slogan": "Fresh Bread • Sandwiches • Fast Food",
-      "all_categories": "All"
+      "all_categories": "All",
+      "packs_title": "Our Packs / Special Offers"
     }
   }
 }

@@ -7,14 +7,19 @@ A modern, responsive, and multilingual QR Code menu system for restaurants. Buil
 - **Multilingual Support**: French (default), Arabic, and English with RTL support for Arabic
 - **Responsive Design**: Works perfectly on mobile, tablet, and desktop
 - **No Backend Required**: 100% frontend, deployable on GitHub Pages or any static host
-- **Dynamic Menu**: All menu items loaded from JSON
+- **Google Sheets Integration**: Manage menu, promos, packs & inventory from a Google Sheet (no backend)
+- **Prominent Call Waiter**: Always-visible floating button with pulse animation (never hidden)
+- **Promotions System**: Auto-rotating promo banners with discount badges
+- **Packs / Combos**: Special combo deals section with WhatsApp ordering
+- **Inventory Management**: Stock tracking with "out of stock" and "low stock" badges
+- **Dynamic Menu**: All menu items loaded from JSON or Google Sheets
 - **Search & Filter**: Instant search and price range filtering
 - **Category Tabs**: Sticky category navigation
-- **Product Modals**: Detailed view of each item
+- **Product Modals**: Detailed view of each item with promo pricing
+- **Shopping Cart**: LocalStorage-based cart with WhatsApp order dispatch
 - **QR Code Ready**: Supports table numbers via URL parameters
 - **Performance Optimized**: Lightweight and fast loading
-- **Accessible**: ARIA labels and keyboard navigation
-- **SEO Friendly**: Meta tags, Open Graph, and structured data
+- **Sync Button**: One-click data refresh from Google Sheets
 
 ## Project Structure
 
@@ -25,16 +30,18 @@ A modern, responsive, and multilingual QR Code menu system for restaurants. Buil
 │   └── responsive.css
 ├── js/
 │   ├── app.js
-│   ├── menu.js
-│   └── search.js
+│   └── menu.js
 ├── data/
-│   └── menu.json
+│   ├── menu.json
+│   └── settings.json
 ├── assets/
 │   ├── logo/
 │   ├── products/
 │   ├── banners/
 │   └── icons/
-└── qr/
+├── qr/
+├── GOOGLE_SHEETS_SETUP.md
+└── additional_premium_feature.md
 ```
 
 ## Setup
@@ -62,6 +69,29 @@ To generate QR codes for your tables:
 2. The URL format should be: `https://yourusername.github.io/repository-name/?table=X`
    (Replace `yourusername`, `repository-name`, and `X` with your table number)
 3. Download the QR code image and print it for your tables
+
+## Google Sheets Integration (Optional)
+
+Manage your entire menu from Google Sheets — no backend needed.
+
+1. Create a Google Sheet with tabs: `settings`, `categories`, `menu`, `packs`, `promos`, `translations`
+2. **File → Share → Publish to web** → Publish the entire document
+3. Copy your Sheet ID from the URL
+4. Update `data/settings.json`:
+   ```json
+   {
+     "googleSheetsEnabled": true,
+     "googleSheetsId": "YOUR_SHEET_ID_HERE"
+   }
+   ```
+5. Click the **🔄 Sync** button in the header to load data
+
+See `GOOGLE_SHEETS_SETUP.md` for detailed setup instructions with column templates.
+
+### Data Priority
+- If Google Sheets is enabled and data loads successfully → uses Sheet data
+- Falls back to local `data/menu.json` if Sheets fail or are disabled
+- Data is cached in localStorage for 5 minutes for performance
 
 ## Customization
 
